@@ -27,10 +27,10 @@ from gt7dashboard.gt7diagrams import get_speed_peak_and_valley_diagram
 
 from gt7dashboard.gt7help import get_help_div
 from gt7dashboard.gt7helper import (
-    load_laps_from_pickle,
     list_lap_files_from_path,
     calculate_time_diff_by_distance,
     save_laps_to_json,
+    save_laps_to_path,
     load_laps_from_json,
 )
 from gt7dashboard.gt7lap import Lap
@@ -366,9 +366,18 @@ if not hasattr(app, 'gt7comm'):
     app.gt7comm = gt7communication.GT7Communication(playstation_ip)
 
     if load_laps_path:
-        app.gt7comm.load_laps(load_laps_from_pickle(load_laps_path), replace_other_laps=True)
+        app.gt7comm.load_laps(load_laps_from_json(load_laps_path), replace_other_laps=True)
 
     app.gt7comm.start()
+
+    # Auto-save all laps on each completed lap
+    def on_lap_completed(_completed_lap):
+        laps = app.gt7comm.laps
+        if len(laps) > 0:
+            save_laps_to_path(laps, os.path.join('data', 'auto_save.json'))
+            logger.debug('Auto-saved %d laps' % len(laps))
+
+    app.gt7comm.set_lap_callback(on_lap_completed)
 else:
     # Reuse existing thread
     if not app.gt7comm.is_connected():

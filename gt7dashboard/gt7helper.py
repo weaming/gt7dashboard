@@ -3,7 +3,6 @@ import itertools
 import json
 import logging
 import os
-import pickle
 import statistics
 from datetime import datetime, timezone
 from pathlib import Path
@@ -299,11 +298,6 @@ def list_lap_files_from_path(root: str):
     return lap_files
 
 
-def load_laps_from_pickle(path: str) -> List[Lap]:
-    with open(path, 'rb') as f:
-        return pickle.load(f)
-
-
 def load_laps_from_json(json_file):
     with open(json_file, 'r') as file:
         data = json.load(file)
@@ -323,36 +317,25 @@ def load_laps_from_json(json_file):
     return laps
 
 
-def save_laps_to_pickle(laps: List[Lap]) -> str:
-    storage_folder = 'data'
-    local_timezone = datetime.now(timezone.utc).astimezone().tzinfo
-    dt = datetime.now(tz=local_timezone)
-    str_date_time = dt.strftime('%Y-%m-%d_%H_%M_%S')
-    storage_filename = '%s_%s.laps' % (str_date_time, get_safe_filename(laps[0].car_name()))
-    Path(storage_folder).mkdir(parents=True, exist_ok=True)
-
-    path = os.path.join(os.getcwd(), storage_folder, storage_filename)
-
-    with open(path, 'wb') as f:
-        pickle.dump(laps, f)
-
-    return path
-
-
 def save_laps_to_json(laps: List[Lap]) -> str:
-
     storage_folder = 'data'
     local_timezone = datetime.now(timezone.utc).astimezone().tzinfo
     dt = datetime.now(tz=local_timezone)
     str_date_time = dt.strftime('%Y-%m-%d_%H_%M_%S')
     storage_filename = '%s_%s.json' % (str_date_time, get_safe_filename(laps[0].car_name()))
     Path(storage_folder).mkdir(parents=True, exist_ok=True)
-
     path = os.path.join(os.getcwd(), storage_folder, storage_filename)
-
     with open(path, 'w') as f:
         json.dump([ob.__dict__ for ob in laps], f, default=_json_default)
+    return path
 
+
+def save_laps_to_path(laps: List[Lap], filepath: str) -> str:
+    """Save laps to a specific file path. Used for auto-save."""
+    path = os.path.abspath(filepath)
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump([ob.__dict__ for ob in laps], f, default=_json_default)
     return path
 
 
