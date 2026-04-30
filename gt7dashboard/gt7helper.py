@@ -300,6 +300,7 @@ def load_laps_from_json(json_file):
         data = json.load(file)
 
     laps = []
+    seen = set()
     for lap_data in data:
         lap = Lap()
         lap.__dict__.update(lap_data)
@@ -309,7 +310,11 @@ def load_laps_from_json(json_file):
         # Legacy: old exports stored -1 for unset lap_end_timestamp
         if isinstance(lap.lap_end_timestamp, int) and lap.lap_end_timestamp == -1:
             lap.lap_end_timestamp = None
-        laps.append(lap)
+
+        key = (lap.lap_finish_time, getattr(lap, 'car_id', 0))
+        if key not in seen:
+            seen.add(key)
+            laps.append(lap)
 
     return laps
 

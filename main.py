@@ -506,17 +506,6 @@ if not hasattr(app, 'gt7comm'):
             logger.exception('Error in lap auto-save')
 
     app.gt7comm.set_lap_callback(on_lap_completed)
-
-    # Auto-load all saved JSON files from data/ directory (deduplicated merge)
-    if not load_laps_path:
-        saved_files = list_lap_files_from_path(os.path.join(os.getcwd(), 'data'))
-        if saved_files:
-            for lap_file in saved_files:
-                loaded = load_laps_from_json(lap_file.path)
-                app.gt7comm.load_laps(loaded, merge=True)
-            logger.info(
-                'Auto-restored %d total laps from %d file(s) in data/' % (len(app.gt7comm.laps), len(saved_files))
-            )
 else:
     # Reuse existing thread
     if not app.gt7comm.is_connected():
