@@ -60,7 +60,7 @@ The current fuel setting will always be at 0. If you want to change the fuel to 
 It will give you a raw assumption of the laps and time remaining and the assumed time difference in lap time for the new setting."""
 TUNING_INFO = """Here is some useful information you may use for tuning. Such as Max Speed and minimal body height in relation to the track. The latter seems to be helpful when determining the possible body height."""
 
-RACE_LINE_BIG = """This is a race line map with the last lap (blue) and the reference lap (magenta). This diagram does also feature speed peaks (▴) and valleys (▾) as well as throttle, brake and coasting zones.
+RACE_LINE_BIG = """This is a race line map with the last lap (blue) and the reference lap (magenta). This diagram does also feature speed peaks (▲) and valleys (▼) as well as throttle, brake and coasting zones.
 
 The thinner line of the two is your last lap. The reference line is the thicker translucent line. If you want to make out differences in the race line have a look at the middle of the reference lap line and your line. You may zoom in to spot the differences and read the values on peaks and valleys.
 """
@@ -74,5 +74,5 @@ def get_help_div(help_text_resource):
 
 def get_help_text_resource(help_text_resource):
     return f"""
-    <div title="{help_text_resource}">?⃝</div>
+    <div title="{help_text_resource}" style="display:inline-flex;align-items:center;justify-content:center;width:1.2em;height:1.2em;border:1px solid;border-radius:50%;font-size:0.8em;cursor:help;line-height:1;">?</div>
     """

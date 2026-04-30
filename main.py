@@ -41,9 +41,9 @@ logger.setLevel(logging.DEBUG)
 def update_connection_info():
     div_connection_info.text = ""
     if app.gt7comm.is_connected():
-        div_connection_info.text += "<p title='Connected'>🟢</p>"
+        div_connection_info.text += "<p title='Connected' style='color:green; font-size:1.5em; line-height:1;'>●</p>"
     else:
-        div_connection_info.text += "<p title='Disconnected'>🔴</p>"
+        div_connection_info.text += "<p title='Disconnected' style='color:red; font-size:1.5em; line-height:1;'>●</p>"
 
 
 def update_reference_lap_select(laps):

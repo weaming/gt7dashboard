@@ -614,7 +614,7 @@ def _add_peaks_and_valley_decorations_for_lap(
             background_fill_color="white",
             background_fill_alpha=0.75,
         )
-        mytext.text = "▴%.0f" % peak_speed_data_x[i]
+        mytext.text = "▲%.0f" % peak_speed_data_x[i]
 
         decorations.append(mytext)
 
@@ -633,7 +633,7 @@ def _add_peaks_and_valley_decorations_for_lap(
             background_fill_alpha=0.75,
             text_align="right",
         )
-        mytext.text = "%.0f▾" % valley_speed_data_x[i]
+        mytext.text = "%.0f▼" % valley_speed_data_x[i]
 
         decorations.append(mytext)
 
