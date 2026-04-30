@@ -26,6 +26,7 @@ from gt7dashboard.gt7diagrams import get_speed_peak_and_valley_diagram, hide_too
 from gt7dashboard.gt7help import get_help_div
 from gt7dashboard.gt7helper import (
     calculate_time_diff_by_distance,
+    get_data_dir,
     list_lap_files_from_path,
     load_laps_from_json,
     save_laps_to_json,
@@ -539,7 +540,7 @@ if not hasattr(app, 'gt7comm'):
         try:
             laps = app.gt7comm.laps
             if len(laps) > 0:
-                save_laps_to_path(laps, os.path.join('data', 'auto_save.json'))
+                save_laps_to_path(laps, os.path.join(get_data_dir(), 'auto_save.json'))
                 logger.debug('Auto-saved %d laps' % len(laps))
         except Exception:
             logger.exception('Error in lap auto-save')
@@ -571,7 +572,7 @@ g_stored_fuel_map = None
 g_telemetry_update_needed = False
 
 stored_lap_files = gt7helper.bokeh_tuple_for_list_of_lapfiles(
-    list_lap_files_from_path(os.path.join(os.getcwd(), 'data'))
+    list_lap_files_from_path(os.path.join(os.getcwd(), get_data_dir()))
 )
 
 race_diagram = gt7diagrams.RaceDiagram(width=1000)

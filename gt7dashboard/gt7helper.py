@@ -319,8 +319,12 @@ def load_laps_from_json(json_file):
     return laps
 
 
+def get_data_dir() -> str:
+    return os.path.expanduser(os.environ.get('GT7_DATA_DIR', 'data'))
+
+
 def save_laps_to_json(laps: List[Lap]) -> str:
-    storage_folder = 'data'
+    storage_folder = get_data_dir()
     local_timezone = datetime.now(timezone.utc).astimezone().tzinfo
     dt = datetime.now(tz=local_timezone)
     str_date_time = dt.strftime('%Y-%m-%d_%H_%M_%S')

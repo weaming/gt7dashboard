@@ -39,7 +39,13 @@ gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 �
 
 如果遇到 `TimeoutError`，请检查您的防火墙。您可能需要允许 UDP 端口 33740 或 33739 的连接。
 
-## Docker
+## 运行
+
+```bash
+make run
+```
+
+### Docker
 
 提供 `Dockerfile` 和[预构建镜像](https://github.com/weaming/gt7dashboard/pkgs/container/gt7dashboard)。
 
@@ -47,6 +53,8 @@ gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 �
 # update PS5_IP in run-in-docker.sh, then:
 make run-in-docker
 ```
+
+但是当前 orbstack 运行的 docker 转发 UDP 有问题。
 
 ## 手册
 
