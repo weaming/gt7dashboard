@@ -14,7 +14,7 @@ def get_throttle_braking_race_line_diagram():
     # TODO Make this work, tooltips just show breakpoint
     race_line_tooltips = [('index', '$index')]
     s_race_line = figure(
-        title='Race Line',
+        title='赛车线',
         match_aspect=True,
         active_scroll='wheel_zoom',
         tooltips=race_line_tooltips,
@@ -33,7 +33,7 @@ def get_throttle_braking_race_line_diagram():
     throttle_line = s_race_line.line(
         x='raceline_x_throttle',
         y='raceline_z_throttle',
-        legend_label='Throttle Last Lap',
+        legend_label='上一圈油门',
         line_width=5,
         color='green',
         source=ColumnDataSource(data={'raceline_z_throttle': [], 'raceline_x_throttle': []}),
@@ -41,7 +41,7 @@ def get_throttle_braking_race_line_diagram():
     breaking_line = s_race_line.line(
         x='raceline_x_braking',
         y='raceline_z_braking',
-        legend_label='Braking Last Lap',
+        legend_label='上一圈刹车',
         line_width=5,
         color='red',
         source=ColumnDataSource(data={'raceline_z_braking': [], 'raceline_x_braking': []}),
@@ -50,7 +50,7 @@ def get_throttle_braking_race_line_diagram():
     coasting_line = s_race_line.line(
         x='raceline_x_coasting',
         y='raceline_z_coasting',
-        legend_label='Coasting Last Lap',
+        legend_label='上一圈滑行',
         line_width=5,
         color='blue',
         source=ColumnDataSource(data={'raceline_z_coasting': [], 'raceline_x_coasting': []}),
@@ -61,7 +61,7 @@ def get_throttle_braking_race_line_diagram():
     reference_throttle_line = s_race_line.line(
         x='raceline_x_throttle',
         y='raceline_z_throttle',
-        legend_label='Throttle Reference',
+        legend_label='参考圈油门',
         line_width=15,
         alpha=0.3,
         color='green',
@@ -70,7 +70,7 @@ def get_throttle_braking_race_line_diagram():
     reference_breaking_line = s_race_line.line(
         x='raceline_x_braking',
         y='raceline_z_braking',
-        legend_label='Braking Reference',
+        legend_label='参考圈刹车',
         line_width=15,
         alpha=0.3,
         color='red',
@@ -80,7 +80,7 @@ def get_throttle_braking_race_line_diagram():
     reference_coasting_line = s_race_line.line(
         x='raceline_x_coasting',
         y='raceline_z_coasting',
-        legend_label='Coasting Reference',
+        legend_label='参考圈滑行',
         line_width=15,
         alpha=0.3,
         color='blue',
@@ -109,16 +109,16 @@ class RaceTimeTable(object):
 
         self.columns = [
             TableColumn(field='number', title='#'),
-            TableColumn(field='time', title='Time'),
-            TableColumn(field='diff', title='Diff'),
-            TableColumn(field='timestamp', title='Timestamp'),
-            TableColumn(field='info', title='Info'),
-            TableColumn(field='fuelconsumed', title='Fuel Cons.'),
-            TableColumn(field='fullthrottle', title='Full Throt.'),
-            TableColumn(field='fullbreak', title='Full Brake'),
-            TableColumn(field='nothrottle', title='Coast'),
-            TableColumn(field='tyrespinning', title='Tire Spin'),
-            TableColumn(field='car_name', title='Car'),
+            TableColumn(field='time', title='时间'),
+            TableColumn(field='diff', title='差值'),
+            TableColumn(field='timestamp', title='时间戳'),
+            TableColumn(field='info', title='信息'),
+            TableColumn(field='fuelconsumed', title='燃油消耗'),
+            TableColumn(field='fullthrottle', title='全油门'),
+            TableColumn(field='fullbreak', title='全刹车'),
+            TableColumn(field='nothrottle', title='滑行'),
+            TableColumn(field='tyrespinning', title='轮胎打滑'),
+            TableColumn(field='car_name', title='赛车'),
         ]
 
         self.lap_times_source = ColumnDataSource(gt7helper.pd_data_frame_from_lap([], best_lap_time=0))
@@ -176,33 +176,33 @@ class RaceDiagram(object):
         tooltips = [
             ('index', '$index'),
             ('value', '$y'),
-            ('Speed', '@speed{0}'),
-            ('Yaw Rate', '@yaw_rate{0.00}'),
-            ('Throttle', '@throttle%'),
-            ('Brake', '@brake%'),
-            ('Coast', '@coast%'),
-            ('Gear', '@gear'),
-            ('Rev', '@rpm{0} RPM'),
-            ('Distance', '@distance{0} m'),
-            ('Boost', '@boost{0.00} x 100 kPa'),
+            ('速度', '@speed{0}'),
+            ('横摆角速度', '@yaw_rate{0.00}'),
+            ('油门', '@throttle%'),
+            ('刹车', '@brake%'),
+            ('滑行', '@coast%'),
+            ('档位', '@gear'),
+            ('转速', '@rpm{0} RPM'),
+            ('距离', '@distance{0} m'),
+            ('增压', '@boost{0.00} x 100 kPa'),
         ]
 
         tooltips_timedelta = [
             ('index', '$index'),
-            ('timedelta', '@timedelta{0} ms'),
-            ('reference', '@reference{0} ms'),
-            ('comparison', '@comparison{0} ms'),
+            ('时间差', '@timedelta{0} ms'),
+            ('参考值', '@reference{0} ms'),
+            ('对比值', '@comparison{0} ms'),
         ]
 
         self.tooltips_speed_variance = [
             ('index', '$index'),
-            ('Distance', '@distance{0} m'),
-            ('Spd. Deviation', '@speed_variance{0}'),
+            ('距离', '@distance{0} m'),
+            ('速度偏差', '@speed_variance{0}'),
         ]
 
         self.f_speed = figure(
-            title='Last, Reference, Median',
-            y_axis_label='Speed',
+            title='上一圈、参考圈、中位圈',
+            y_axis_label='速度',
             width=width,
             height=250,
             tooltips=tooltips,
@@ -210,7 +210,7 @@ class RaceDiagram(object):
         )
 
         self.f_speed_variance = figure(
-            y_axis_label='Spd.Dev.',
+            y_axis_label='速度偏差',
             x_range=self.f_speed.x_range,
             y_range=Range1d(0, 50),
             width=width,
@@ -220,9 +220,9 @@ class RaceDiagram(object):
         )
 
         self.f_time_diff = figure(
-            title='Time Diff - Last, Reference',
+            title='时间差 - 上一圈与参考圈',
             x_range=self.f_speed.x_range,
-            y_axis_label='Time / Diff',
+            y_axis_label='时间/差值',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips_timedelta,
@@ -231,7 +231,7 @@ class RaceDiagram(object):
 
         self.f_throttle = figure(
             x_range=self.f_speed.x_range,
-            y_axis_label='Throttle',
+            y_axis_label='油门',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips,
@@ -239,7 +239,7 @@ class RaceDiagram(object):
         )
         self.f_braking = figure(
             x_range=self.f_speed.x_range,
-            y_axis_label='Braking',
+            y_axis_label='刹车',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips,
@@ -248,7 +248,7 @@ class RaceDiagram(object):
 
         self.f_coasting = figure(
             x_range=self.f_speed.x_range,
-            y_axis_label='Coasting',
+            y_axis_label='滑行',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips,
@@ -257,7 +257,7 @@ class RaceDiagram(object):
 
         self.f_tires = figure(
             x_range=self.f_speed.x_range,
-            y_axis_label='Tire Spd / Car Spd',
+            y_axis_label='轮胎速度/车速',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips,
@@ -275,7 +275,7 @@ class RaceDiagram(object):
 
         self.f_gear = figure(
             x_range=self.f_speed.x_range,
-            y_axis_label='Gear',
+            y_axis_label='档位',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips,
@@ -284,7 +284,7 @@ class RaceDiagram(object):
 
         self.f_boost = figure(
             x_range=self.f_speed.x_range,
-            y_axis_label='Boost',
+            y_axis_label='增压',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips,
@@ -293,7 +293,7 @@ class RaceDiagram(object):
 
         self.f_yaw_rate = figure(
             x_range=self.f_speed.x_range,
-            y_axis_label='Yaw Rate / Second',
+            y_axis_label='横摆角速度/秒',
             width=width,
             height=int(self.f_speed.height / 2),
             tooltips=tooltips,
@@ -350,11 +350,11 @@ class RaceDiagram(object):
             line_alpha=1,
         )
 
-        self.source_last_lap = self.add_lap_to_race_diagram('blue', 'Last Lap', True)
+        self.source_last_lap = self.add_lap_to_race_diagram('blue', '上一圈', True)
 
-        self.source_reference_lap = self.add_lap_to_race_diagram('magenta', 'Reference Lap', True)
+        self.source_reference_lap = self.add_lap_to_race_diagram('magenta', '参考圈', True)
 
-        self.source_median_lap = self.add_lap_to_race_diagram('green', 'Median Lap', False)
+        self.source_median_lap = self.add_lap_to_race_diagram('green', '中位圈', False)
 
         self.f_speed.legend.click_policy = 'hide'
         self.f_throttle.legend.click_policy = self.f_speed.legend.click_policy
@@ -651,11 +651,11 @@ def get_fuel_map_html_table(last_lap: Lap) -> str:
     fuel_maps = gt7helper.get_fuel_on_consumption_by_relative_fuel_levels(last_lap)
     table = (
         '<table><tr>'
-        "<th title='The fuel level relative to the current one'>Fuel Lvl.</th>"
-        "<th title='Fuel consumed'>Fuel Cons.</th>"
-        "<th title='Laps remaining with this setting'>Laps Rem.</th>"
-        "<th title='Time remaining with this setting' >Time Rem.</th>"
-        "<th title='Time Diff to last lap with this setting'>Time Diff</th></tr>"
+        "<th title='相对于当前设置的燃油等级'>燃油等级</th>"
+        "<th title='燃油消耗量'>燃油消耗</th>"
+        "<th title='此设置下剩余圈数'>剩余圈数</th>"
+        "<th title='此设置下剩余时间' >剩余时间</th>"
+        "<th title='此设置下与上一圈的时间差'>时间差</th></tr>"
     )
     for fuel_map in fuel_maps:
         no_fuel_consumption = fuel_map.fuel_consumed_per_lap <= 0
@@ -676,16 +676,14 @@ def get_fuel_map_html_table(last_lap: Lap) -> str:
                 fuel_map.mixture_setting,
                 0 if no_fuel_consumption else fuel_map.fuel_consumed_per_lap,
                 0 if no_fuel_consumption else fuel_map.laps_remaining_on_current_fuel,
-                'No Fuel'
+                '无燃油'
                 if no_fuel_consumption
                 else (gt7helper.seconds_to_lap_time(fuel_map.time_remaining_on_current_fuel / 1000)),
-                'Consumption'
-                if no_fuel_consumption
-                else (gt7helper.seconds_to_lap_time(fuel_map.lap_time_diff / 1000)),
+                '无消耗' if no_fuel_consumption else (gt7helper.seconds_to_lap_time(fuel_map.lap_time_diff / 1000)),
             )
         )
     table += '</table>'
-    table += '<p>Fuel Remaining: <b>%d</b></p>' % last_lap.fuel_at_end
+    table += '<p>剩余燃油: <b>%d</b></p>' % last_lap.fuel_at_end
     return table
 
 
@@ -743,16 +741,16 @@ def get_speed_peak_and_valley_diagram(last_lap: Lap, reference_lap: Lap) -> str:
     table += '<tr>'
 
     table += '<th></th>'
-    table += '<th colspan="4">%s - %s</th>' % ('Last', last_lap.title)
-    table += '<th colspan="4">%s - %s</th>' % ('Ref.', reference_lap.title)
-    table += '<th colspan="2">Diff</th>'
+    table += '<th colspan="4">%s - %s</th>' % ('上一圈', last_lap.title)
+    table += '<th colspan="4">%s - %s</th>' % ('参考圈', reference_lap.title)
+    table += '<th colspan="2">差值</th>'
 
     table += '</tr>'
 
     table += """<tr>
-    <td></td><td>#</td><td></td><td>Pos.</td><td>Speed</td>
-    <td>#</td><td></td><td>Pos.</td><td>Speed</td>
-    <td>Pos.</td><td>Speed</td>
+    <td></td><td>#</td><td></td><td>位置</td><td>速度</td>
+    <td>#</td><td></td><td>位置</td><td>速度</td>
+    <td>位置</td><td>速度</td>
     </tr>"""
 
     rl_and_ll_are_same_size = len(ll_tuple_list) == len(rl_tuple_list)
@@ -823,14 +821,14 @@ def get_speed_peak_and_valley_diagram_row(
 ):
     row = ''
 
-    row += '<tr><th>#</th><th>Peak</th><th>Position</th></tr>'
+    row += '<tr><th>#</th><th>峰值</th><th>位置</th></tr>'
     for i, dx in enumerate(peak_speed_data_x):
         row += '<tr><td>%d.</td><td>%d kph</td><td>%d</td></tr>' % (
             i + 1,
             peak_speed_data_x[i],
             peak_speed_data_y[i],
         )
-    row += '<tr><th>#</th><th>Valley</th><th>Position</th></tr>'
+    row += '<tr><th>#</th><th>谷值</th><th>位置</th></tr>'
     for i, dx in enumerate(valley_speed_data_x):
         row += '<tr><td>%d.</td><td>%d kph</td><td>%d</td></tr>' % (
             i + 1,
@@ -851,15 +849,15 @@ class CornerAnalysis:
             }
         )
         self.f_consistency = figure(
-            title='Corner Speed Consistency (Std Dev per Segment)',
-            x_axis_label='Track Segment',
-            y_axis_label='Speed Std Dev (km/h)',
+            title='弯道速度一致性（每段标准差）',
+            x_axis_label='赛道段',
+            y_axis_label='速度标准差 (km/h)',
             width=width,
             height=250,
             tooltips=[
-                ('Segment', '@segment'),
-                ('Std Dev', '@speed_std{0.1f} km/h'),
-                ('Mean Speed', '@mean_speed{0.0f} km/h'),
+                ('段', '@segment'),
+                ('标准差', '@speed_std{0.1f} km/h'),
+                ('平均速度', '@mean_speed{0.0f} km/h'),
             ],
             active_drag='box_zoom',
         )
@@ -882,16 +880,16 @@ class CornerAnalysis:
             }
         )
         self.f_theoretical = figure(
-            title='Theoretical Best vs Actual Best (per Segment)',
-            x_axis_label='Track Segment',
-            y_axis_label='Time (ms)',
+            title='理论最佳 vs 实际最佳（每段）',
+            x_axis_label='赛道段',
+            y_axis_label='时间 (ms)',
             width=width,
             height=250,
             tooltips=[
-                ('Segment', '@segment'),
-                ('Actual Best', '@best_time{0.0f} ms'),
-                ('Theoretical Best', '@theoretical_time{0.0f} ms'),
-                ('Diff', '@time_diff{+0.0f} ms'),
+                ('段', '@segment'),
+                ('实际最佳', '@best_time{0.0f} ms'),
+                ('理论最佳', '@theoretical_time{0.0f} ms'),
+                ('差值', '@time_diff{+0.0f} ms'),
             ],
             active_drag='box_zoom',
         )
@@ -901,7 +899,7 @@ class CornerAnalysis:
             source=self.source_theoretical,
             width=0.3,
             color='magenta',
-            legend_label='Actual Best',
+            legend_label='实际最佳',
         )
         self.f_theoretical.vbar(
             x=dodge('segment', 0.15, range=self.f_theoretical.x_range),
@@ -909,7 +907,7 @@ class CornerAnalysis:
             source=self.source_theoretical,
             width=0.3,
             color='green',
-            legend_label='Theoretical Best',
+            legend_label='理论最佳',
         )
         self.f_theoretical.legend.click_policy = 'hide'
         self.f_theoretical.toolbar.autohide = True
@@ -927,8 +925,8 @@ class CornerAnalysis:
     def update(self, laps):
         result = gt7helper.compute_segment_analysis(laps)
         if result[0] is None:
-            self.f_consistency.title.text = 'Corner Consistency (need 2+ laps)'
-            self.f_theoretical.title.text = 'Theoretical Best (need 2+ laps)'
+            self.f_consistency.title.text = '弯道一致性（需要 2+ 圈）'
+            self.f_theoretical.title.text = '理论最佳（需要 2+ 圈）'
             self.source_consistency.data = {
                 'segment': [],
                 'mean_speed': [],
@@ -946,18 +944,18 @@ class CornerAnalysis:
         consistency_df, theoretical_time_ms, best_time_ms, theoretical_df = result
 
         self.source_consistency.data = ColumnDataSource.from_df(consistency_df)
-        self.f_consistency.title.text = 'Corner Speed Consistency (Std Dev per Segment)'
+        self.f_consistency.title.text = '弯道速度一致性（每段标准差）'
 
         self.source_theoretical.data = ColumnDataSource.from_df(theoretical_df)
-        self.f_theoretical.title.text = 'Theoretical Best vs Actual Best (per Segment)'
+        self.f_theoretical.title.text = '理论最佳 vs 实际最佳（每段）'
 
         delta = theoretical_time_ms - best_time_ms
         gain = gt7helper.seconds_to_lap_time(abs(delta) / 1000)
         sign = '+' if delta >= 0 else '-'
         self.summary_div.text = (
-            f'<b>Theoretical Best:</b> {gt7helper.seconds_to_lap_time(theoretical_time_ms / 1000)}'
+            f'<b>理论最佳:</b> {gt7helper.seconds_to_lap_time(theoretical_time_ms / 1000)}'
             f' &nbsp;|&nbsp; '
-            f'<b>Actual Best:</b> {gt7helper.seconds_to_lap_time(best_time_ms / 1000)}'
+            f'<b>实际最佳:</b> {gt7helper.seconds_to_lap_time(best_time_ms / 1000)}'
             f' &nbsp;|&nbsp; '
-            f'<b>Gap:</b> {sign}{gain}'
+            f'<b>差距:</b> {sign}{gain}'
         )

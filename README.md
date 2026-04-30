@@ -1,95 +1,94 @@
 # gt7dashboard
 
-gt7dashboard is a live dashboard for Gran Turismo 7. Based on the recent discovery of the telemetry interface of GT7 described [here first](https://www.gtplanet.net/forum/threads/gt7-is-compatible-with-motion-rig.410728 ). This began as a fork of Bornhalls [gt7telemetry](https://github.com/Bornhall/gt7telemetry).
+gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 遥测接口，首次描述见[此处](https://www.gtplanet.net/forum/threads/gt7-is-compatible-with-motion-rig.410728 )。此项目最初是 Bornhall 的 [gt7telemetry](https://github.com/Bornhall/gt7telemetry) 的一个分支。
 
-See the [Manual](#manual) for detailed instructions.
+详见[手册](#manual)获取详细说明。
 
-## Features
+## 功能特点
 
 ![](README.assets/screenshot.png)
 ![](README.assets/screenshot_race_line.png)
 
-* Time Diff Graph between Last Lap and Reference Lap
-  * *Under dashed line* is better and *over dashed line* is worse than Reference Lap
-* Race Line view with speed peaks and valleys of last lap and reference lap
-* Speed/Distance Graph for Last Lap, Reference Lap and Median Lap
-  * Median Lap is calculated by the median of all recent laps
-* Speed Variance Graph showing speed deviation in your best laps
-* Picker for Reference Lap
-  * Default is Best Lap
-* Throttle/Distance Graph
-* Braking/Distance Graph
-* Coasting/Distance Graph
-* Race Line Graph
-* Table of Speed Peaks and Valleys. Compared between reference and last lap
-* Relative Fuel Map for choosing the right Fuel Map setting in order to reach distance, remaining time and desired lap times
-* List of all recent laps with additional metrics, measured in percentage * 1000 for better readability
-* Additional data for tuning such as Max Speed and Min Body Height
-* Ability to Save current laps and reset all laps
-* Race Lines for the most recent laps depicting throttling (green), braking (red) and coasting (blue)
-* Additional "Race view" with only fuel map
-* Optional Brake Points (slow) when setting `GT7_ADD_BRAKEPOINTS=true`
-* Add additional laps from the race lap table to the diagrams
+* 上一圈与参考圈的时间差图
+  * *虚线以下*表示优于参考圈，*虚线以上*表示劣于参考圈
+* 赛车线视图，显示上一圈和参考圈的速度峰值和谷值
+* 上一圈、参考圈和中位圈的速度/距离图
+  * 中位圈由所有近期圈速的中位数计算得出
+* 速度偏差图，显示最佳圈速中的速度偏差
+* 参考圈选择器
+  * 默认为最佳圈
+* 油门/距离图
+* 刹车/距离图
+* 滑行/距离图
+* 赛车线图
+* 速度峰值和谷值表，对比参考圈和上一圈
+* 相对燃油图，用于选择合适的燃油设置以达到目标距离、剩余时间和期望圈速
+* 所有近期圈速列表及附加指标，以百分比 * 1000 计量以便阅读
+* 调校相关附加数据，如最高速度和最小车身高度
+* 保存当前圈速和重置所有圈速的功能
+* 近期圈速的赛车线，显示油门（绿色）、刹车（红色）和滑行（蓝色）
+* 仅含燃油图的附加"比赛视图"
+* 可选刹车点（较慢），设置 `GT7_ADD_BRAKEPOINTS=true` 启用
+* 从圈速表中添加附加圈速到图表中
 
-### Get Telemetry of a Demonstration lap or Replay
+### 获取演示圈或回放的遥测数据
 
-Enable the "Always Record" checkbox to always record replays. Otherwise, only the laps you are actually driving will be recorded.
+启用"记录回放"复选框以始终记录回放。否则，仅记录您实际驾驶的圈速。
 
-## Easy Installation (Windows)
+## 简易安装（Windows）
 
-No Python required. Download the latest pre-built Windows package from the
-[Releases](https://github.com/snipem/gt7dashboard/releases) page:
+无需 Python。从 [Releases](https://github.com/snipem/gt7dashboard/releases) 页面下载最新的预构建 Windows 包：
 
-1. Download `gt7dashboard-windows.zip` from the latest release.
-2. Extract the zip to any folder.
-3. Double-click **`gt7dashboard.exe`**.
-4. A dialog will appear asking for your PlayStation IP address.
-   - Find it on your PS5 at **Settings → Network → View Connection Status**.
-   - Leave the field empty to use automatic broadcast discovery.
-5. The dashboard opens in your default browser automatically.
+1. 从最新版本下载 `gt7dashboard-windows.zip`。
+2. 将 zip 解压到任意文件夹。
+3. 双击 **`gt7dashboard.exe`**。
+4. 弹出对话框要求输入您的 PlayStation IP 地址。
+   - 在 PS5 上通过 **设置 → 网络 → 查看连接状态** 找到。
+   - 留空以使用自动广播发现。
+5. 仪表盘将在您的默认浏览器中自动打开。
 
-> **Tip:** Your saved lap files are stored in the `data` folder next to `gt7dashboard.exe`.
+> **提示：** 保存的圈速文件存储在 `gt7dashboard.exe` 旁边的 `data` 文件夹中。
 
-## How to run
+## 如何运行
 
-You will have to have a running Python installation. Look [here](https://wiki.python.org/moin/BeginnersGuide/Download) for instructions.
+您需要安装可用的 Python。查看[此处](https://wiki.python.org/moin/BeginnersGuide/Download)获取安装说明。
 
-* If you are on Windows 
-  * Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+* 如果您在 Windows 上
+  * 需要 Microsoft Visual C++ 14.0 或更高版本。通过 "Microsoft C++ Build Tools" 获取：https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
-  * Run the file `run.ps1` with a double click
-* If you are on MacOS run the file `run.command`
-* If you are on MacOS and using Homebrew to manage your Python3 installation, run the file `brew.command`
-* If you are on Linux run the file `run.sh`
+  * 双击运行 `run.ps1` 文件
+* 如果您在 MacOS 上，运行 `run.command` 文件
+* 如果您在 MacOS 上且使用 Homebrew 管理 Python3 安装，运行 `brew.command` 文件
+* 如果您在 Linux 上，运行 `run.sh` 文件
 
-The commands `pip3` or `python3` may be different on your OS. Try `pip` or `python` instead.
+`pip3` 或 `python3` 命令可能在您的操作系统上有所不同。尝试使用 `pip` 或 `python`。
 
-## How to run for experienced users
+## 高级用户运行方式
 
-1. (Once) `pip3 install -r requirements.txt` to install Python dependencies
-   1. On Windows: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+1. （一次性）`pip3 install -r requirements.txt` 安装 Python 依赖
+   1. 在 Windows 上：需要 Microsoft Visual C++ 14.0 或更高版本。通过 "Microsoft C++ Build Tools" 获取：https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
-2. (Optional, Once) Download the list of car names with `python3 helper/download_cars_csv.py`. Without this file, car names will only show as `CAR-ID-123`.
-3. Running the Dashboard
-    - (Mac/Linux) `bokeh serve .` (when inside the  `gt7dashboard` folder)
-    - (Windows) `python -m bokeh serve .`  (when inside the `gt7dashboard` folder)
-4. (Optional) Running the Dashboard with a custom IP
-   - (Mac/Linux) `GT7_PLAYSTATION_IP=<CONSOLE IP ADDRESS> bokeh serve .` (when inside the  `gt7dashboard` folder)
-   - (Windows) `set GT7_PLAYSTATION_IP=<CONSOLE IP ADDRESS>` and `python -m bokeh serve .`  (when inside the `gt7dashboard` folder)
+2. （可选，一次性）使用 `python3 helper/download_cars_csv.py` 下载赛车名称列表。没有此文件，赛车名称将仅显示为 `CAR-ID-123`。
+3. 运行仪表盘
+    - （Mac/Linux）`bokeh serve .`（在 `gt7dashboard` 文件夹内）
+    - （Windows）`python -m bokeh serve .`（在 `gt7dashboard` 文件夹内）
+4. （可选）使用自定义 IP 运行仪表盘
+   - （Mac/Linux）`GT7_PLAYSTATION_IP=<主机 IP 地址> bokeh serve .`（在 `gt7dashboard` 文件夹内）
+   - （Windows）`set GT7_PLAYSTATION_IP=<主机 IP 地址>` 然后 `python -m bokeh serve .`（在 `gt7dashboard` 文件夹内）
 
-## Troubleshooting
+## 故障排除
 
-If you run into `TimeoutError`s make sure to check your firewall. You may have to enable UDP connections on port 33740 or 33739.
+如果遇到 `TimeoutError`，请检查您的防火墙。您可能需要允许 UDP 端口 33740 或 33739 的连接。
 
 ## Docker
 
-There is a `Dockerfile` and [readily made images](https://github.com/snipem/gt7dashboard/pkgs/container/gt7dashboard) available. 
+提供 `Dockerfile` 和[预构建镜像](https://github.com/snipem/gt7dashboard/pkgs/container/gt7dashboard)。
 
 ```bash
-# If building from the Dockerfile
+# 从 Dockerfile 构建
 docker build -t gt7dashboard /home/user/work/gt7dashboard
 
-# If pulling from this repo
+# 从此仓库拉取
 docker pull ghcr.io/snipem/gt7dashboard:main
 
 docker run -d --restart unless-stopped \
@@ -104,7 +103,7 @@ docker run -d --restart unless-stopped \
   gt7dashboard
 ```
 
-This is a sample `docker-compose` configuration:
+以下是 `docker-compose` 配置示例：
 
 ```yaml
     gt7dashboard:
@@ -124,182 +123,182 @@ This is a sample `docker-compose` configuration:
             - TZ=Europe/Berlin
 ```
 
-Hint: You should set the `GT7_PLAYSTATION_IP` env var since Docker containers are not allowed to send UDP broadcasts by default. This is the default behaviour when no IP is set.
+提示：您应该设置 `GT7_PLAYSTATION_IP` 环境变量，因为 Docker 容器默认不允许发送 UDP 广播。这是未设置 IP 时的默认行为。
 
-## Lap Files
+## 圈速文件
 
-If you want to edit your lap files, use a JSON editor. For example ` cat ... | jq -c '.[0:4]' > ...` will shorten the laps to the first 4 laps in the save file.
+如果您想编辑圈速文件，请使用 JSON 编辑器。例如 `cat ... | jq -c '.[0:4]' > ...` 将圈速文件缩短为前 4 圈。
 
-## Contributing
+## 贡献
 
-Please add unit tests for all new features, calculations etc.
+请为所有新功能、计算等添加单元测试。
 
-If you want to add something to the manual, please edit `gt7dashboard/gt7help.py` and use `make doc` to generate the `README.md`.
+如果您想向手册添加内容，请编辑 `gt7dashboard/gt7help.py` 并使用 `make doc` 生成 `README.md`。
 
-## Manual
+## 手册
 
-### Tab 'Get Faster'
+### 标签页 '提升圈速'
 
-#### Header
+#### 标题
 
 ![screenshot_header](README.assets/screenshot_header.png)
 
-The red or green button reflects the current connection status to Gran Turismo 7. i.e. if there was a packet received successfully in the last second, the button will turn green.
+红色或绿色按钮反映与 Gran Turismo 7 的当前连接状态。即如果在最后一秒成功接收数据包，按钮将变为绿色。
 
-Next is a brief description of the last and reference lap. The reference lap can be selected on the right side.
+接下来是对上一圈和参考圈的简要描述。参考圈可在右侧选择。
 
-#### Lap Controls
+#### 圈速控制
 
 ![screenshot_header](README.assets/screenshot_lapcontrols.png)
 
-You can reset all laps with the 'Reset Laps' button. This is helpful if you are switching tracks or cars in a session. Otherwise the different tracks will mix in the dashboard.
-'Save Laps' will save your recorded laps to a file. You can load the laps afterwards with the dropdown list to the right.
+'重置圈数' 按钮可重置所有圈数。如果您在会话中切换赛道或赛车，这将很有用。否则不同的赛道会在仪表板中混合。
+'保存圈数' 将保存您记录的圈数到文件。之后您可以通过右侧的下拉列表加载圈数。
 
-#### Time / Diff
+#### 时间/差值
 
 ![screenshot_header](README.assets/screenshot_timediff.png)
 
-This is a graph for showing the relative time difference between the last lap and the reference lap.
-Everything under the solid bar at 0 is slower than the reference lap. Everything above is faster than the reference lap.
+此图表显示上一圈与参考圈之间的相对时间差。
+0 处实线以下的所有内容表示比参考圈慢。以上所有内容表示比参考圈快。
 
-If you see a bump in this graph to the top or the bottom this means that you were slower or faster at this point respectively.
+如果您在此图表中看到向上或向下的凸起，分别表示您在此位置较慢或较快。
 
 
-#### Manual Controls
+#### 手动控制
 
 ![screenshot_header](README.assets/screenshot_manualcontrols.png)
 
-'Log Lap Now' will log a lap now even if you have not crossed the finish line. This is helpful for missions or license tests where the end of a test is not necessarily identical with the finish line.
+'立即记录圈数' 将立即记录一圈，即使您尚未通过终点线。这有助于任务或驾照考试，其中测试的结束不一定与终点线相同。
 
-The checkbox 'Record Replays' will allow you to record replays. Be careful since also background action before and after a time trial is counted as a replay. This is when a car drives on the track in the background of the menu.
+'记录回放' 复选框允许您记录回放。请注意，计时赛前后背景中的活动也会被视为回放。即赛车在菜单背景中在赛道上行驶的情况。
 
-In the 'Best Lap' dropdown list you can select the reference lap. Usually this will point to the best lap of the session.
+在 '最佳圈' 下拉列表中，您可以选择参考圈。通常这指向当前会议的最佳圈。
 
 
-#### Speed 
+#### 速度
 
 ![screenshot_header](README.assets/screenshot_speed.png)
 
-The total speed of the laps selected. This value is in km/h. or mph. depending on your in-game setting
+所选圈数的总速度。此值取决于您的游戏设置为 km/h 或 mph。
 
-#### Race Line
+#### 赛车线
 
 ![screenshot_header](README.assets/screenshot_raceline.png)
 
-This is a race line map with the last lap (blue) and the reference lap (magenta). Zoom in for more details.
+这是上一圈（蓝色）和参考圈（洋红色）的赛车线地图。放大查看详情。
 
-This map is helpful if you are using the index number of a graph to quickly determine where in the lap a measurement was taken.
+如果您使用图表的索引编号快速确定赛道上的测量位置，此地图会很有帮助。
 
-See the tab 'Race Line' for a more detailed race line.
+查看 '赛车线' 标签页获取更详细的赛车线。
 
-#### Peaks and Valleys
+#### 峰值和谷值
 
 ![screenshot_header](README.assets/screenshot_peaks_and_valleys.png)
 
-A list of speed peaks and valleys for the selected laps. We assume peaks are straights (s) and valleys are turns (T). Use this to compare the difference in speed between the last lap and the reference lap on given positions of the race track.
+所选圈数的速度峰值和谷值列表。我们假设峰值代表直道（S），谷值代表弯道（T）。用于比较上一圈和参考圈在赛道各个位置的速度差异。
 
-#### Speed Deviation (Spd. Dev.)
+#### 速度偏差 (Spd. Dev.)
 
 ![screenshot_header](README.assets/screenshot_speeddeviation.png)
 
-Displays the speed deviation of the fastest laps within a 5.0% time difference threshold of the fastest lap.
-Replay laps are ignored. The speed deviation is calculated as the standard deviation between these fastest laps.
+显示最快圈速的速度偏差（基于最快圈 5.0% 时间差阈值内的圈速）。
+回放圈速将被忽略。速度偏差是这些最快圈速之间的标准差。
 
-With a perfect driver in an ideal world, this line would be flat. In a real world situation, you will get an almost flat line, 
-with bumps at the corners and long straights. This is where even your best laps deviate.
+在理想世界中拥有完美车手时，这条线将是平坦的。在实际情况中，您会得到一条近乎平坦的线，
+在弯道和长直道处会有起伏。这正是即使您的最佳圈速也存在偏差的地方。
 
-You may get some insights for improvement on your consistency if you look at the points of the track where this line is bumpy.
+您可能会从查看此线起伏的赛道位置中获得一致性改进的洞察。
 
-The list on the right hand side shows your best laps that are taken into consideration for the speed variance.
+右侧列表显示了用于速度偏差分析的最佳圈速。
 
 
-I got inspired for this diagram by the [Your Data Driven Podcast](https://www.yourdatadriven.com/).
-On two different episodes of this podcast both [Peter Krause](https://www.yourdatadriven.com/ep12-go-faster-now-with-motorsports-data-analytics-guru-peter-krause/) and [Ross Bentley](https://www.yourdatadriven.com/ep3-tips-for-racing-faster-with-ross-bentley/) mentioned this visualization.
-If they had one graph it would be the deviation in the (best) laps of the same driver, to improve said drivers performance learning from the differences in already good laps. If they could do it once, they could do it every time.
+我从 [Your Data Driven Podcast](https://www.yourdatadriven.com/) 获得此图表的灵感。
+在该播客的两期不同节目中，[Peter Krause](https://www.yourdatadriven.com/ep12-go-faster-now-with-motorsports-data-analytics-guru-peter-krause/) 和 [Ross Bentley](https://www.yourdatadriven.com/ep3-tips-for-racing-faster-with-ross-bentley/) 都提到了此可视化。
+如果他们只能看一个图表，那就是同一年手最佳圈速中的偏差，通过学习已有好圈速之间的差异来提升车手表现。如果他们能做好一次，就能每次都做好。
 
-#### Throttle
+#### 油门
 
 ![screenshot_header](README.assets/screenshot_throttle.png)
 
-This is the amount of throttle pressure from 0% to 100% of the laps selected.
+所选圈数的油门压力，范围为 0% 至 100%。
 
-#### Yaw Rate / Second
+#### 横摆角速度/秒
 
 ![screenshot_header](README.assets/screenshot_yaw.png)
 
-This is the yaw rate per second of your car. Use this to determine the Maximum Rotation Point (MRP). At this point you should normally accelerate.
+这是赛车的每秒横摆角速度。用于确定最大旋转点（MRP）。此时通常应开始加速。
 
-[Suellio Almeida](https://suellioalmeida.ca) introduced this concept to me. See [here](https://www.youtube.com/watch?v=B92vFKKjyB0) for more information.
+[Suellio Almeida](https://suellioalmeida.ca) 向我介绍了此概念。详见[此处](https://www.youtube.com/watch?v=B92vFKKjyB0)。
 
-#### Braking
+#### 刹车
 
 ![screenshot_header](README.assets/screenshot_braking.png)
 
-This is the amount of braking pressure from 0% to 100% of the laps selected.
+所选圈数的刹车压力，范围为 0% 至 100%。
 
-#### Coasting
+#### 滑行
 
 ![screenshot_header](README.assets/screenshot_coasting.png)
 
-This is the amount of coasting from 0% to 100% of the laps selected. Coasting is when neither throttle nor brake are engaged.
+所选圈数的滑行比例，范围为 0% 至 100%。滑行是指既未踩油门也未踩刹车的状态。
 
-#### Gear
+#### 档位
 
 ![screenshot_header](README.assets/screenshot_gear.png)
 
-This is the current gear of the laps selected.
+所选圈数的当前档位。
 
 #### RPM
 
 ![screenshot_header](README.assets/screenshot_rpm.png)
 
-This is the current RPM of the laps selected.
+所选圈数的当前 RPM。
 
-#### Boost
+#### 增压
 
 ![screenshot_header](README.assets/screenshot_boost.png)
 
-This is the current Boost in x100 kPa of the laps selected.
+所选圈数的当前增压值（x100 kPa）。
 
-#### Tire Speed / Car Speed
+#### 轮胎速度/车速
 
 ![screenshot_header](README.assets/screenshot_tirespeed.png)
 
-This is the relation between the speed of the tires and the speed of the car. If your tires are faster than your car, your tires might be spinning. If they are slower, your tires might be blocking. Use this to judge your car control.
+轮胎速度与车速之间的关系。如果轮胎速度快于车速，轮胎可能正在打滑。如果轮胎速度慢于车速，轮胎可能正在抱死。用于判断您的车辆控制。
 
-#### Time Table
+#### 圈速表
 
 ![screenshot_header](README.assets/screenshot_timetable.png)
 
-A table with logged information of the session. # is the number of the lap as reported by the game. There might be multiple laps of the same number if you restarted a session. Time and Diff are self-explaining. Info will hold additional meta data, for example if this lap was a replay.
-Fuel Consumed is the amount of fuel consumed in the lap.
+包含当前会话记录信息的表格。# 是游戏报告的圈数编号。如果您重新开始会话，可能存在多个相同编号的圈数。时间和差值自解释。信息列包含额外元数据，例如该圈是否为回放。
+燃油消耗是当前圈消耗的燃油量。
 
-What follows now are simple metrics for the characteristics of the lap. This is counted as ticks, which means instances when the game reported a state. For example Full Throttle = 500 means that you were on full throttle during 500 instances when the game sent its telemetry.
-The same goes for Full Brake, Coast and Tire Spin. Use this to easily compare your laps.
+接下来是圈速特征的基本指标。以 tick 为单位计数，即游戏报告状态的实例数。例如全油门 = 500 表示您在游戏发送遥测数据的 500 个实例中处于全油门状态。
+全刹车、滑行和轮胎打滑同理。使用此功能轻松比较您的圈速。
 
-You can click on one of these laps to add them to the diagrams above. These laps will be deleted if you reset the view or reload the page.
+您可以点击其中一个圈速将其添加到上方的图表中。如果重置视图或重新加载页面，这些圈速将被删除。
 
-Car will hold the car name. You will have to have the `db/cars.csv` file downloaded for this to work.
+赛车列显示赛车名称。您需要下载 `db/cars.csv` 文件才能显示。
 
 
-#### Fuel Map
+#### 燃油图
 
 ![screenshot_header](README.assets/screenshot_fuelmap.png)
 
-This fuel map will help to determine the fuel setting of your car. The game does not report the current fuel setting, so this map is relative.
-The current fuel setting will always be at 0. If you want to change the fuel to a leaner setting count downwards with the amount of steps left. For example: If you are at fuel setting 2 in the game and want to go to the games fuel setting 5, have a look at Fuel Lvl. 3 in this map.
-It will give you a raw assumption of the laps and time remaining and the assumed time difference in lap time for the new setting.
+此燃油图帮助确定赛车的燃油设置。游戏不报告当前燃油设置，因此此地图是相对的。
+当前燃油设置始终为 0。如果您想更改为更稀的燃油设置，按剩余步数向下计数。例如：如果您在游戏中的燃油设置为 2，并希望设置为游戏的燃油设置 5，请在此地图中查看燃油等级 3。
+它会为您提供关于新设置下剩余圈数和时间以及预估圈速时间差的粗略估计。
 
-#### Tuning Info
+#### 调校信息
 
 ![screenshot_header](README.assets/screenshot_tuninginfo.png)
 
-Here is some useful information you may use for tuning. Such as Max Speed and minimal body height in relation to the track. The latter seems to be helpful when determining the possible body height.
+以下是一些可能对调校有用的信息。例如最高速度以及与赛道相关的最小车身高度。后者似乎在确定可能的车身高度时很有帮助。
 
-### Tab 'Race Line'
+### 标签页 '赛车线'
 
 ![screenshot_header](README.assets/screenshot_race_line.png)
 
-This is a race line map with the last lap (blue) and the reference lap (magenta). This diagram does also feature speed peaks (▴) and valleys (▾) as well as throttle, brake and coasting zones.
+这是上一圈（蓝色）和参考圈（洋红色）的赛车线地图。此图还显示速度峰值（▴）和谷值（▾）以及油门、刹车和滑行区域。
 
-The thinner line of the two is your last lap. The reference line is the thicker translucent line. If you want to make out differences in the race line have a look at the middle of the reference lap line and your line. You may zoom in to spot the differences and read the values on peaks and valleys.
+两条线中较细的是您的上一圈。参考线是较粗的半透明线。如果您想找出赛车线的差异，请查看参考圈赛车线和您赛车线的中间部分。您可以放大以发现差异并读取峰值和谷值的数值。

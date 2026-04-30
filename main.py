@@ -43,13 +43,13 @@ logger.setLevel(logging.DEBUG)
 def update_connection_info():
     div_connection_info.text = ''
     if app.gt7comm.is_connected():
-        div_connection_info.text += "<p title='Connected' style='color:green; font-size:1.5em; line-height:1;'>●</p>"
+        div_connection_info.text += "<p title='已连接' style='color:green; font-size:1.5em; line-height:1;'>●</p>"
     else:
-        div_connection_info.text += "<p title='Disconnected' style='color:red; font-size:1.5em; line-height:1;'>●</p>"
+        div_connection_info.text += "<p title='未连接' style='color:red; font-size:1.5em; line-height:1;'>●</p>"
 
 
 def update_reference_lap_select(laps):
-    reference_lap_select.options = [tuple(('-1', 'Best Lap'))] + gt7helper.bokeh_tuple_for_list_of_laps(laps)
+    reference_lap_select.options = [tuple(('-1', '最佳圈'))] + gt7helper.bokeh_tuple_for_list_of_laps(laps)
 
 
 @linear()
@@ -83,7 +83,7 @@ def update_race_lines(laps: List[Lap], reference_lap: Lap):
     for i, lap in enumerate(laps[: len(race_lines)]):
         logger.info(f'Updating Race Line for Lap {len(laps) - i} - {lap.title} and reference lap {reference_lap.title}')
 
-        race_lines[i].title.text = 'Lap %d - %s (%s), Reference Lap: %s (%s)' % (
+        race_lines[i].title.text = '圈 %d - %s (%s)，参考圈: %s (%s)' % (
             len(laps) - i,
             lap.title,
             lap.car_name(),
@@ -110,8 +110,8 @@ def update_race_lines(laps: List[Lap], reference_lap: Lap):
 
 def update_header_line(div: Div, last_lap: Lap, reference_lap: Lap):
     div.text = (
-        f'<p><b>Last Lap: {last_lap.title} ({last_lap.car_name()})<b></p>'
-        f'<p><b>Reference Lap: {reference_lap.title} ({reference_lap.car_name()})<b></p>'
+        f'<p><b>上一圈: {last_lap.title} ({last_lap.car_name()})<b></p>'
+        f'<p><b>参考圈: {reference_lap.title} ({reference_lap.car_name()})<b></p>'
     )
 
 
@@ -213,7 +213,7 @@ def update_speed_velocity_graph(laps: List[Lap]):
     logger.info('Updating Speed Deviance with %d fastest laps' % len(fastest_laps))
     div_deviance_laps_on_display.text = ''
     for fastest_lap in fastest_laps:
-        div_deviance_laps_on_display.text += f'<b>Lap {fastest_lap.number}:</b> {fastest_lap.title}<br>'
+        div_deviance_laps_on_display.text += f'<b>圈 {fastest_lap.number}:</b> {fastest_lap.title}<br>'
 
     # Update breakpoints
     # Adding Brake Points is slow when rendering, this is on Bokehs side about 3s
@@ -302,9 +302,9 @@ def load_reference_lap_handler(attr, old, new):
 
 
 def update_tuning_info():
-    div_tuning_info.text = """<h4>Tuning Info</h4>
-    <p>Max Speed: <b>%d</b> kph</p>
-    <p>Min Body Height: <b>%d</b> mm</p>""" % (
+    div_tuning_info.text = """<h4>调校信息</h4>
+    <p>最高速度: <b>%d</b> kph</p>
+    <p>最小车身高度: <b>%d</b> mm</p>""" % (
         app.gt7comm.session.max_speed,
         app.gt7comm.session.min_body_height,
     )
@@ -440,7 +440,7 @@ race_line_width = 250
 speed_diagram_width = 1200
 total_width = race_line_width + speed_diagram_width
 s_race_line = figure(
-    title='Race Line',
+    title='赛车线',
     x_axis_label='x',
     y_axis_label='z',
     match_aspect=True,
@@ -459,7 +459,7 @@ s_race_line.toolbar.autohide = True
 last_lap_race_line = s_race_line.line(
     x='raceline_x',
     y='raceline_z',
-    legend_label='Last Lap',
+    legend_label='上一圈',
     line_width=1,
     color='blue',
     source=ColumnDataSource(data={'raceline_x': [], 'raceline_z': []}),
@@ -467,26 +467,26 @@ last_lap_race_line = s_race_line.line(
 reference_lap_race_line = s_race_line.line(
     x='raceline_x',
     y='raceline_z',
-    legend_label='Reference Lap',
+    legend_label='参考圈',
     line_width=1,
     color='magenta',
     source=ColumnDataSource(data={'raceline_x': [], 'raceline_z': []}),
 )
 
-select_title = Paragraph(text='Load Laps:', align='center')
+select_title = Paragraph(text='加载圈数:', align='center')
 select = Select(value='laps', options=stored_lap_files)
 select.on_change('value', load_laps_handler)
 
 reference_lap_select = Select(value='laps')
 reference_lap_select.on_change('value', load_reference_lap_handler)
 
-manual_log_button = Button(label='Log Lap Now')
+manual_log_button = Button(label='立即记录圈数')
 manual_log_button.on_click(log_lap_button_handler)
 
-save_button = Button(label='Save Laps')
+save_button = Button(label='保存圈数')
 save_button.on_click(save_button_handler)
 
-reset_button = Button(label='Reset Laps')
+reset_button = Button(label='重置圈数')
 reset_button.on_click(reset_button_handler)
 
 div_tuning_info = Div(width=200, height=100)
@@ -503,7 +503,7 @@ div_fuel_map = Div(width=200, height=125, css_classes=['fuel_map'])
 
 div_gt7_dashboard.text = f"<a href='https://github.com/snipem/gt7dashboard' target='_blank'>GT7 Dashboard</a>"
 
-LABELS = ['Record Replays']
+LABELS = ['记录回放']
 
 checkbox_group = CheckboxGroup(labels=LABELS, active=[1])
 checkbox_group.on_change('active', always_record_checkbox_handler)
@@ -575,10 +575,10 @@ l3 = layout(
 )
 
 #  Setup the tabs
-tab1 = TabPanel(child=l1, title='Get Faster')
-tab2 = TabPanel(child=l2, title='Race Lines')
-tab3 = TabPanel(child=l3, title='Race')
-tab4 = TabPanel(child=corner_analysis.layout, title='Corner Analysis')
+tab1 = TabPanel(child=l1, title='提升圈速')
+tab2 = TabPanel(child=l2, title='赛车线')
+tab3 = TabPanel(child=l3, title='比赛')
+tab4 = TabPanel(child=corner_analysis.layout, title='弯道分析')
 tabs = Tabs(tabs=[tab1, tab2, tab3, tab4])
 
 curdoc().add_root(tabs)
