@@ -66,8 +66,6 @@ class GTData:
 
         self.brake = struct.unpack('B', ddata[0x92:0x92 + 1])[0] / 2.55  # brake
 
-        self.boost = struct.unpack('f', ddata[0x50:0x50 + 4])[0] - 1  # boost
-
         self.rpm_rev_limiter = struct.unpack('H', ddata[0x8A:0x8A + 2])[0]  # rpm rev limiter
 
         self.estimated_top_speed = struct.unpack('h', ddata[0x8C:0x8C + 2])[0]  # estimated top speed
@@ -272,12 +270,13 @@ class GT7Communication(Thread):
     def get_last_data(self) -> GTData:
         timeout = time.time() + 5  # 5 seconds timeout
         while True:
-
             if self.last_data is not None:
                 return self.last_data
 
             if time.time() > timeout:
                 break
+
+            time.sleep(0.1)
 
     def get_laps(self) -> List[Lap]:
         return self.laps
@@ -335,7 +334,7 @@ class GT7Communication(Thread):
         delta_fl = data.type_speed_FL / delta_divisor
         delta_fr = data.type_speed_FR / delta_divisor
         delta_rl = data.type_speed_RL / delta_divisor
-        delta_rr = data.type_speed_FR / delta_divisor
+        delta_rr = data.tyre_speed_RR / delta_divisor
 
         if delta_fl > 1.1 or delta_fr > 1.1 or delta_rl > 1.1 or delta_rr > 1.1:
             self.current_lap.tires_spinning_ticks += 1

@@ -335,8 +335,10 @@ def load_laps_from_json(json_file):
         lap.__dict__.update(lap_data)
         for key, value in lap_data.items():
             if key.endswith('_timestamp') and isinstance(value, str):
-                value = datetime.fromisoformat(value)
-                setattr(lap, key, value)
+                setattr(lap, key, datetime.fromisoformat(value))
+        # Legacy: old exports stored -1 for unset lap_end_timestamp
+        if isinstance(lap.lap_end_timestamp, int) and lap.lap_end_timestamp == -1:
+            lap.lap_end_timestamp = None
         laps.append(lap)
 
     return laps
@@ -368,9 +370,15 @@ def save_laps_to_json(laps: List[Lap]) -> str:
     path = os.path.join(os.getcwd(), storage_folder, storage_filename)
 
     with open(path, "w") as f:
-        json.dump([ob.__dict__ for ob in laps], f, default=str)
+        json.dump([ob.__dict__ for ob in laps], f, default=_json_default)
 
     return path
+
+
+def _json_default(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    return str(obj)
 
 
 def get_safe_filename(unsafe_filename: str) -> str:
@@ -761,8 +769,3 @@ def get_peaks_and_valleys_sorted_tuple_list(lap: Lap):
     return tuple_list
 
 
-def calculate_laps_left_on_fuel(current_lap, last_lap) -> float:
-    # TODO Like F1: A) Benzingemisch -0.72 Bunden
-    laps_left: float
-    fuel_consumed_last_lap = last_lap.fuel_at_start - last_lap.fuel_at_end
-    laps_left = current_lap.fuel - (last_lap.laps_to_go * fuel_consumed_last_lap)

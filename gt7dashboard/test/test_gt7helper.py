@@ -350,12 +350,6 @@ class TestLaps(unittest.TestCase):
         tuple_list = gt7helper.get_peaks_and_valleys_sorted_tuple_list(test_laps[3])
         print(tuple_list)
 
-    @unittest.skip("Not yet implemented")
-    def test_calculate_fuel_left(self):
-        lap = Lap()
-        fuel_left = gt7helper.calculate_laps_left_on_fuel(lap, lap)
-        print(fuel_left)
-
     def test_save_laps_to_json(self):
         l1 = Lap()
         l1.data_boost = [0.6, 0.7, 0.9]

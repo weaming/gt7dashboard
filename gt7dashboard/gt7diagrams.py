@@ -180,7 +180,7 @@ class RaceDiagram(object):
         self.source_median_lap = None
         self.sources_additional_laps = []
 
-        self.additional_laps = List[Lap]
+        self.additional_laps: List[Lap] = []
 
         # This is the number of default laps,
         # last lap, best lap and median lap
@@ -531,28 +531,25 @@ class RaceDiagram(object):
         return self.layout
 
     def delete_all_additional_laps(self):
-        # Delete all but first three in list
+        # Delete all but first three in list — iterate in reverse to avoid index shifting
         self.sources_additional_laps = []
 
-        for i, _ in enumerate(self.f_speed.renderers):
-            if i >= self.number_of_default_laps:
-                self.f_speed.renderers.remove(self.f_speed.renderers[i])  # remove the line renderer
-                self.f_throttle.renderers.remove(self.f_throttle.renderers[i])  # remove the line renderer
-                self.f_braking.renderers.remove(self.f_braking.renderers[i])  # remove the line renderer
-                self.f_coasting.renderers.remove(self.f_coasting.renderers[i])  # remove the line renderer
-                self.f_tires.renderers.remove(self.f_tires.renderers[i])  # remove the line renderer
-                self.f_boost.renderers.remove(self.f_boost.renderers[i])  # remove the line renderer
-                self.f_yaw_rate.renderers.remove(self.f_yaw_rate.renderers[i])  # remove the line renderer
-                # self.f_time_diff.renderers.remove(self.f_time_diff.renderers[i])  # remove the line renderer
+        for i in range(len(self.f_speed.renderers) - 1, self.number_of_default_laps - 1, -1):
+            self.f_speed.renderers.pop(i)
+            self.f_throttle.renderers.pop(i)
+            self.f_braking.renderers.pop(i)
+            self.f_coasting.renderers.pop(i)
+            self.f_tires.renderers.pop(i)
+            self.f_boost.renderers.pop(i)
+            self.f_yaw_rate.renderers.pop(i)
 
-                self.f_speed.legend.items.pop(i)
-                self.f_throttle.legend.items.pop(i)
-                self.f_braking.legend.items.pop(i)
-                self.f_coasting.legend.items.pop(i)
-                self.f_tires.legend.items.pop(i)
-                self.f_yaw_rate.legend.items.pop(i)
-                self.f_boost.legend.items.pop(i)
-                # self.f_time_diff.legend.items.pop(i)
+            self.f_speed.legend.items.pop(i)
+            self.f_throttle.legend.items.pop(i)
+            self.f_braking.legend.items.pop(i)
+            self.f_coasting.legend.items.pop(i)
+            self.f_tires.legend.items.pop(i)
+            self.f_yaw_rate.legend.items.pop(i)
+            self.f_boost.legend.items.pop(i)
 
 
 

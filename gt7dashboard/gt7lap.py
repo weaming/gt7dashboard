@@ -53,7 +53,7 @@ class Lap:
         self.is_manual = False
 
         self.lap_start_timestamp = datetime.now()
-        self.lap_end_timestamp = -1
+        self.lap_end_timestamp = None
 
     def __str__(self):
         return "\n %s, %2d, %1.f, %4d, %4d, %4d" % (
