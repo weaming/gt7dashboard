@@ -1,4 +1,3 @@
-import pickle
 import unittest
 import os
 
@@ -11,7 +10,6 @@ from gt7dashboard.gt7helper import (
 from gt7dashboard.gt7lap import Lap
 
 from gt7dashboard import gt7helper
-from gt7dashboard import gt7lap
 
 
 class TestHelper(unittest.TestCase):

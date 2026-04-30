@@ -5,6 +5,8 @@ import os
 import time
 from typing import List
 
+os.environ.setdefault('BOKEH_SIMPLE_WS', 'true')
+
 import bokeh.application
 from bokeh.driving import linear
 from bokeh.layouts import layout
@@ -39,13 +41,56 @@ from gt7dashboard.gt7lap import Lap
 logger = logging.getLogger('main.py')
 logger.setLevel(logging.DEBUG)
 
+BRAKE_POINT_RENDERER_PREFIX = 'brake-points'
+RECONNECT_AFTER_SECONDS = 8
+RECONNECT_INTERVAL_SECONDS = 8
+FIRST_TELEMETRY_RECONNECT_AFTER_SECONDS = 30
+CONNECTION_STATUS_REFRESH_MS = 250
+
 
 def update_connection_info():
-    div_connection_info.text = ''
-    if app.gt7comm.is_connected():
-        div_connection_info.text += "<p title='已连接' style='color:green; font-size:1.5em; line-height:1;'>●</p>"
+    is_connected = app.gt7comm.is_connected()
+
+    if is_connected:
+        connection_info_html = "<p title='已连接' style='color:green; font-size:1.5em; line-height:1;'>●</p>"
     else:
-        div_connection_info.text += "<p title='未连接' style='color:red; font-size:1.5em; line-height:1;'>●</p>"
+        connection_info_html = "<p title='未连接' style='color:red; font-size:1.5em; line-height:1;'>●</p>"
+
+    if div_connection_info.text != connection_info_html:
+        div_connection_info.text = connection_info_html
+
+    return is_connected
+
+
+def update_connection_status():
+    global g_connection_status_stored
+
+    try:
+        is_connected = update_connection_info()
+
+        if is_connected != g_connection_status_stored:
+            g_connection_status_stored = is_connected
+            if not is_connected:
+                if app.gt7comm.has_received_data:
+                    logger.warning('PS5 connection lost, will attempt reconnection')
+                else:
+                    logger.info('Waiting for PS5 telemetry')
+
+        if is_connected:
+            return
+
+        if app.gt7comm.has_received_data:
+            last_data_age = time.time() - app.gt7comm.last_data_received_at
+            if last_data_age > RECONNECT_AFTER_SECONDS:
+                request_gt7_reconnect('No PS5 data for %.0fs, forcing reconnection' % last_data_age)
+            return
+
+        if app.gt7comm.socket_age_seconds > FIRST_TELEMETRY_RECONNECT_AFTER_SECONDS:
+            request_gt7_reconnect(
+                'No initial PS5 telemetry after %.0fs, restarting socket' % app.gt7comm.socket_age_seconds
+            )
+    except Exception:
+        logger.exception('Error updating connection status')
 
 
 def update_reference_lap_select(laps):
@@ -125,7 +170,6 @@ def update_lap_change():
     """
     global g_laps_stored
     global g_session_stored
-    global g_connection_status_stored
     global g_telemetry_update_needed
     global g_reference_lap_selected
 
@@ -140,7 +184,6 @@ def update_lap_change():
 
 def _do_update_lap_change():
     global g_session_stored
-    global g_connection_status_stored
     global g_reference_lap_selected
 
     update_start_time = time.time()
@@ -150,10 +193,6 @@ def _do_update_lap_change():
     if app.gt7comm.session != g_session_stored:
         update_tuning_info()
         g_session_stored = copy.copy(app.gt7comm.session)
-
-    if app.gt7comm.is_connected() != g_connection_status_stored:
-        update_connection_info()
-        g_connection_status_stored = copy.copy(app.gt7comm.is_connected())
 
     # This saves on cpu time, 99.9% of the time this is true
     if laps == g_laps_stored and not g_telemetry_update_needed:
@@ -250,24 +289,42 @@ def update_speed_velocity_graph(laps: List[Lap]):
     # Adding Brake Points is slow when rendering, this is on Bokehs side about 3s
     brake_points_enabled = os.environ.get('GT7_ADD_BRAKEPOINTS') == 'true'
 
-    if brake_points_enabled and last_lap and len(last_lap.data_braking) > 0:
-        update_break_points(last_lap, s_race_line, 'blue')
+    if not brake_points_enabled:
+        clear_break_points(s_race_line)
+        return
 
-    if brake_points_enabled and reference_lap and len(reference_lap.data_braking) > 0:
-        update_break_points(reference_lap, s_race_line, 'magenta')
+    update_break_points(last_lap, s_race_line, 'blue')
+    update_break_points(reference_lap, s_race_line, 'magenta')
 
 
 def update_break_points(lap: Lap, race_line: figure, color: str):
-    brake_points_x, brake_points_y = gt7helper.get_brake_points(lap)
+    source_data = {'x': [], 'y': []}
+    if lap and len(lap.data_braking) > 0:
+        brake_points_x, brake_points_y = gt7helper.get_brake_points(lap)
+        source_data = {'x': brake_points_x, 'y': brake_points_y}
 
-    for i, _ in enumerate(brake_points_x):
-        race_line.scatter(
-            brake_points_x[i],
-            brake_points_y[i],
-            marker='circle',
-            size=10,
-            fill_color=color,
-        )
+    renderer_name = f'{BRAKE_POINT_RENDERER_PREFIX}-{color}'
+    for renderer in race_line.renderers:
+        if renderer.name == renderer_name and hasattr(renderer, 'data_source'):
+            renderer.data_source.data = source_data
+            return
+
+    race_line.scatter(
+        x='x',
+        y='y',
+        marker='circle',
+        size=10,
+        fill_color=color,
+        line_color=color,
+        name=renderer_name,
+        source=ColumnDataSource(data=source_data),
+    )
+
+
+def clear_break_points(race_line: figure):
+    for renderer in race_line.renderers:
+        if renderer.name and renderer.name.startswith(BRAKE_POINT_RENDERER_PREFIX):
+            renderer.data_source.data = {'x': [], 'y': []}
 
 
 def update_time_table(laps: List[Lap]):
@@ -385,6 +442,18 @@ def get_race_lines_layout(number_of_race_lines):
 
 app = bokeh.application.Application
 
+
+def request_gt7_reconnect(reason: str):
+    now = time.time()
+    last_restart_time = getattr(app, 'last_gt7_restart_time', 0)
+    if now - last_restart_time < RECONNECT_INTERVAL_SECONDS:
+        return
+
+    logger.warning(reason)
+    app.gt7comm.restart()
+    app.last_gt7_restart_time = now
+
+
 # Share the gt7comm connection between sessions by storing them as an application attribute
 if not hasattr(app, 'gt7comm'):
     playstation_ip = os.environ.get('GT7_PLAYSTATION_IP')
@@ -415,8 +484,10 @@ if not hasattr(app, 'gt7comm'):
 else:
     # Reuse existing thread
     if not app.gt7comm.is_connected():
-        logger.info('Restarting gt7communcation because of no connection')
-        app.gt7comm.restart()
+        if app.gt7comm.has_received_data:
+            request_gt7_reconnect('Restarting gt7communication because of no connection')
+        else:
+            logger.info('Waiting for PS5 telemetry')
     else:
         # Existing thread has connection, proceed
         pass
@@ -544,7 +615,8 @@ div_deviance_laps_on_display = Div(width=200, height=race_diagram.f_speed_varian
 
 div_fuel_map = Div(width=200, height=125, css_classes=['fuel_map'])
 
-div_gt7_dashboard.text = f"<a href='https://github.com/snipem/gt7dashboard' target='_blank'>GT7 Dashboard</a>"
+div_gt7_dashboard.text = "<a href='https://github.com/weaming/gt7dashboard' target='_blank'>GT7 Dashboard</a>"
+update_connection_info()
 
 LABELS = ['记录回放']
 
@@ -627,6 +699,7 @@ tabs = Tabs(tabs=[tab1, tab2, tab3, tab4])
 curdoc().add_root(tabs)
 curdoc().title = 'GT7 Dashboard'
 
+curdoc().add_periodic_callback(update_connection_status, CONNECTION_STATUS_REFRESH_MS)
 # This will only trigger once per lap, but we check every second if anything happened
 curdoc().add_periodic_callback(update_lap_change, 1000)
 curdoc().add_periodic_callback(update_fuel_map, 5000)

@@ -47,12 +47,9 @@ def get_x_axis_for_distance(lap: Lap) -> List:
 
 def get_x_axis_depending_on_mode(lap: Lap, distance_mode: bool):
     if distance_mode:
-        # Calculate distance for x axis
         return get_x_axis_for_distance(lap)
-    else:
-        # Use ticks as length, which is the length of any given data list
-        return list(range(len(lap.data_speed)))
-    pass
+
+    return list(range(len(lap.data_speed)))
 
 
 def get_time_delta_dataframe_for_lap(lap: Lap, name: str) -> DataFrame:
@@ -62,7 +59,7 @@ def get_time_delta_dataframe_for_lap(lap: Lap, name: str) -> DataFrame:
     # Multiply to match datatype which is nanoseconds?
     lap_time_ms = [convert_seconds_to_milliseconds(item) for item in lap_time]
 
-    series = pd.Series(lap_distance, index=pd.TimedeltaIndex(data=lap_time_ms, unit='ms'))
+    series = pd.Series(lap_distance, index=pd.to_timedelta(lap_time_ms, unit='ms'))
 
     upsample = series.resample('10ms').asfreq()
     interpolated_upsample = upsample.interpolate()

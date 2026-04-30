@@ -1,4 +1,5 @@
 import os
+import socket
 import time
 import unittest
 
@@ -6,6 +7,17 @@ from gt7dashboard import gt7communication
 from gt7dashboard.gt7lap import Lap
 
 PLAYSTATION_IP = 'ps5wifi'
+
+
+class GT7CommunicationSocketTest(unittest.TestCase):
+    def test_send_heartbeat_returns_false_when_restart_closed_socket(self):
+        gt7comm = gt7communication.GT7Communication('127.0.0.1')
+        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        gt7comm._socket = udp_socket
+
+        gt7comm.restart()
+
+        self.assertFalse(gt7comm._send_hb(udp_socket))
 
 
 # check if host is up

@@ -1,12 +1,10 @@
+import copy
 import datetime
 import json
 import logging
-import math
 import socket
 import struct
 import time
-import copy
-import traceback
 from datetime import timedelta
 from threading import Thread
 from typing import List
@@ -15,6 +13,8 @@ from Crypto.Cipher import Salsa20
 
 from gt7dashboard.gt7helper import seconds_to_lap_time
 from gt7dashboard.gt7lap import Lap
+
+logger = logging.getLogger(__name__)
 
 
 class GTData:
@@ -166,6 +166,10 @@ class Session:
 
 
 class GT7Communication(Thread):
+    DATA_TIMEOUT_SECONDS = 3
+    HEARTBEAT_INTERVAL_SECONDS = 1
+    SOCKET_TIMEOUT_SECONDS = 1
+
     def __init__(self, playstation_ip):
         # Thread control
         Thread.__init__(self)
@@ -181,6 +185,9 @@ class GT7Communication(Thread):
         self.send_port = 33739
         self.receive_port = 33740
         self._last_time_data_received = 0
+        self._last_hb_time = 0
+        self._socket = None
+        self._socket_started_at = 0
 
         self.current_lap = Lap()
         self.session = Session()
@@ -200,20 +207,23 @@ class GT7Communication(Thread):
             try:
                 self._shall_restart = False
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                self._socket = s
+                self._socket_started_at = time.time()
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
                 if self.playstation_ip == '255.255.255.255':
                     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
                 s.bind(('0.0.0.0', self.receive_port))
-                self._send_hb(s)
-                s.settimeout(10)
+                if not self._send_hb(s):
+                    continue
+
+                s.settimeout(self.SOCKET_TIMEOUT_SECONDS)
                 previous_lap = -1
                 package_id = 0
-                package_nr = 0
                 while not self._shall_restart and self._shall_run:
                     try:
-                        data, address = s.recvfrom(4096)
-                        package_nr = package_nr + 1
+                        data, _address = s.recvfrom(4096)
                         ddata = salsa20_dec(data)
                         if len(ddata) > 0 and struct.unpack('i', ddata[0x70 : 0x70 + 4])[0] > package_id:
                             self.last_data = GTData(ddata)
@@ -247,33 +257,77 @@ class GT7Communication(Thread):
 
                             self._log_data(self.last_data)
 
-                            if package_nr > 100:
-                                self._send_hb(s)
-                                package_nr = 0
-                    except (OSError, TimeoutError) as e:
-                        # Handler for package exceptions
-                        self._send_hb(s)
-                        package_nr = 0
-                        # Reset package id for new connections
-                        package_id = 0
+                        if self._should_send_heartbeat():
+                            if not self._send_hb(s):
+                                break
+                    except socket.timeout:
+                        if self._shall_restart or not self._shall_run:
+                            break
 
-            except Exception as e:
-                # Handler for general socket exceptions
-                # TODO logging not working
-                print('Error while connecting to %s:%d: %s' % (self.playstation_ip, self.send_port, e))
-                s.close()
-                # Wait before reconnect
+                        if not self._send_hb(s):
+                            break
+                    except OSError:
+                        if self._shall_restart or not self._shall_run:
+                            break
+
+                        logger.exception('Socket error while receiving PS5 telemetry')
+                        package_id = 0
+                        break
+
+            except Exception:
+                logger.exception('Error while connecting to %s:%d', self.playstation_ip, self.send_port)
                 time.sleep(5)
+            finally:
+                if s is not None:
+                    s.close()
+                if self._socket is s:
+                    self._socket = None
+                    self._socket_started_at = 0
 
     def restart(self):
         self._shall_restart = True
+        if self._socket is not None:
+            try:
+                self._socket.close()
+            except OSError:
+                pass
 
     def is_connected(self) -> bool:
-        return self._last_time_data_received > 0 and (time.time() - self._last_time_data_received) <= 1
+        return (
+            self._last_time_data_received > 0
+            and (time.time() - self._last_time_data_received) <= self.DATA_TIMEOUT_SECONDS
+        )
 
-    def _send_hb(self, s):
+    @property
+    def last_data_received_at(self) -> float:
+        return self._last_time_data_received
+
+    @property
+    def has_received_data(self) -> bool:
+        return self._last_time_data_received > 0
+
+    @property
+    def socket_age_seconds(self) -> float:
+        if self._socket_started_at <= 0:
+            return 0
+
+        return time.time() - self._socket_started_at
+
+    def _send_hb(self, s) -> bool:
         send_data = 'A'
-        s.sendto(send_data.encode('utf-8'), (self.playstation_ip, self.send_port))
+        try:
+            s.sendto(send_data.encode('utf-8'), (self.playstation_ip, self.send_port))
+            self._last_hb_time = time.time()
+            return True
+        except OSError:
+            if self._shall_restart or not self._shall_run:
+                return False
+
+            logger.exception('Socket error while sending PS5 heartbeat')
+            return False
+
+    def _should_send_heartbeat(self) -> bool:
+        return time.time() - self._last_hb_time >= self.HEARTBEAT_INTERVAL_SECONDS
 
     def get_last_data(self) -> GTData:
         timeout = time.time() + 5  # 5 seconds timeout
