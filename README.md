@@ -41,7 +41,7 @@ gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 �
 
 ## Docker
 
-提供 `Dockerfile` 和[预构建镜像](https://github.com/snipem/gt7dashboard/pkgs/container/gt7dashboard)。
+提供 `Dockerfile` 和[预构建镜像](https://github.com/weaming/gt7dashboard/pkgs/container/gt7dashboard)。
 
 ```bash
 # update PS5_IP in run-in-docker.sh, then:
