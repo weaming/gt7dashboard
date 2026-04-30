@@ -27,15 +27,15 @@ def ask_playstation_ip():
         root = tk.Tk()
         root.withdraw()
         root.lift()
-        root.attributes("-topmost", True)
+        root.attributes('-topmost', True)
 
         ip = simpledialog.askstring(
-            "GT7 Dashboard \u2013 Setup",
-            "Enter your PlayStation IP address.\n\n"
-            "Find it on your PS5 at:\n"
-            "Settings \u2192 Network \u2192 View Connection Status\n\n"
-            "Leave empty to use automatic discovery\n"
-            "(recommended for most home networks):",
+            'GT7 Dashboard \u2013 Setup',
+            'Enter your PlayStation IP address.\n\n'
+            'Find it on your PS5 at:\n'
+            'Settings \u2192 Network \u2192 View Connection Status\n\n'
+            'Leave empty to use automatic discovery\n'
+            '(recommended for most home networks):',
             parent=root,
         )
         root.destroy()
@@ -43,12 +43,12 @@ def ask_playstation_ip():
             return ip.strip()
     except Exception:
         pass
-    return "255.255.255.255"
+    return '255.255.255.255'
 
 
 def main():
     # ---- Determine directories ----
-    if getattr(sys, "frozen", False):
+    if getattr(sys, 'frozen', False):
         # Running as a PyInstaller bundle.
         # Bundled files (main.py, gt7dashboard/) live in sys._MEIPASS.
         app_dir = sys._MEIPASS
@@ -59,11 +59,11 @@ def main():
         app_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Ensure the data directory exists so saving/loading laps works.
-    os.makedirs(os.path.join(os.getcwd(), "data"), exist_ok=True)
+    os.makedirs(os.path.join(os.getcwd(), 'data'), exist_ok=True)
 
     # ---- PlayStation IP ----
-    if not os.environ.get("GT7_PLAYSTATION_IP"):
-        os.environ["GT7_PLAYSTATION_IP"] = ask_playstation_ip()
+    if not os.environ.get('GT7_PLAYSTATION_IP'):
+        os.environ['GT7_PLAYSTATION_IP'] = ask_playstation_ip()
 
     # ---- Start Bokeh server ----
     from bokeh.application import Application
@@ -74,10 +74,10 @@ def main():
     bokeh_app = Application(handler)
 
     port = 5006
-    server = Server({"/": bokeh_app}, port=port)
+    server = Server({'/': bokeh_app}, port=port)
     server.start()
 
-    url = f"http://localhost:{port}"
+    url = f'http://localhost:{port}'
 
     def _open_browser():
         time.sleep(2)
@@ -85,17 +85,17 @@ def main():
 
     threading.Thread(target=_open_browser, daemon=True).start()
 
-    print(f"GT7 Dashboard is running at {url}")
-    print("The dashboard will open in your browser automatically.")
-    print("Keep this window open while using the dashboard.")
-    print("Press Ctrl+C to stop.")
+    print(f'GT7 Dashboard is running at {url}')
+    print('The dashboard will open in your browser automatically.')
+    print('Keep this window open while using the dashboard.')
+    print('Press Ctrl+C to stop.')
 
     try:
         server.io_loop.start()
     except KeyboardInterrupt:
-        print("\nStopping GT7 Dashboard...")
+        print('\nStopping GT7 Dashboard...')
         server.stop()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

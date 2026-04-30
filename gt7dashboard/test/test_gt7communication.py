@@ -5,22 +5,21 @@ import unittest
 from gt7dashboard import gt7communication
 from gt7dashboard.gt7lap import Lap
 
-PLAYSTATION_IP = "ps5wifi"
+PLAYSTATION_IP = 'ps5wifi'
 
 
 # check if host is up
 def is_host_up(ip: str) -> bool:
-    response = os.system("ping -c 1 " + PLAYSTATION_IP)
+    response = os.system('ping -c 1 ' + PLAYSTATION_IP)
 
-    #and then check the response...
+    # and then check the response...
     if response == 0:
         return True
     else:
         return False
 
 
-@unittest.skipIf(not is_host_up(PLAYSTATION_IP),
-                 "Playstation host is not up on %s" % (PLAYSTATION_IP))
+@unittest.skipIf(not is_host_up(PLAYSTATION_IP), 'Playstation host is not up on %s' % (PLAYSTATION_IP))
 class GT7CommunicationTest(unittest.TestCase):
     @classmethod
     def setUpClass(self) -> None:

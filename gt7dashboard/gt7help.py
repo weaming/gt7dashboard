@@ -35,13 +35,15 @@ If you see a bump in this graph to the top or the bottom this means that you wer
 """
 LAP_CONTROLS = """You can reset all laps with the 'Reset Laps' button. This is helpful if you are switching tracks or cars in a session. Otherwise the different tracks will mix in the dashboard.
 'Save Laps' will save your recorded laps to a file. You can load the laps afterwards with the dropdown list to the right."""
-SPEED_DIAGRAM = """The total speed of the laps selected. This value is in km/h. or mph. depending on your in-game setting"""
+SPEED_DIAGRAM = (
+    """The total speed of the laps selected. This value is in km/h. or mph. depending on your in-game setting"""
+)
 THROTTLE_DIAGRAM = """This is the amount of throttle pressure from 0% to 100% of the laps selected."""
 BRAKING_DIAGRAM = """This is the amount of braking pressure from 0% to 100% of the laps selected."""
 COASTING_DIAGRAM = """This is the amount of coasting from 0% to 100% of the laps selected. Coasting is when neither throttle nor brake are engaged."""
 GEAR_DIAGRAM = """This is the current gear of the laps selected."""
-RPM_DIAGRAM = "This is the current RPM of the laps selected."
-BOOST_DIAGRAM = "This is the current Boost in x100 kPa of the laps selected."
+RPM_DIAGRAM = 'This is the current RPM of the laps selected.'
+BOOST_DIAGRAM = 'This is the current Boost in x100 kPa of the laps selected.'
 TIRE_DIAGRAM = """This is the relation between the speed of the tires and the speed of the car. If your tires are faster than your car, your tires might be spinning. If they are slower, your tires might be blocking. Use this to judge your car control."""
 
 SPEED_PEAKS_AND_VALLEYS = """A list of speed peaks and valleys for the selected laps. We assume peaks are straights (s) and valleys are turns (T). Use this to compare the difference in speed between the last lap and the reference lap on given positions of the race track."""

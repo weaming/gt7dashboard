@@ -2,8 +2,12 @@ import pickle
 import unittest
 import os
 
-from gt7dashboard.gt7helper import calculate_remaining_fuel, format_laps_to_table, calculate_time_diff_by_distance, \
-    get_n_fastest_laps_within_percent_threshold_ignoring_replays
+from gt7dashboard.gt7helper import (
+    calculate_remaining_fuel,
+    format_laps_to_table,
+    calculate_time_diff_by_distance,
+    get_n_fastest_laps_within_percent_threshold_ignoring_replays,
+)
 from gt7dashboard.gt7lap import Lap
 
 from gt7dashboard import gt7helper
@@ -34,7 +38,7 @@ class TestHelper(unittest.TestCase):
         fuel_lap.lap_finish_time = 1000
         fuel_maps = gt7helper.get_fuel_on_consumption_by_relative_fuel_levels(fuel_lap)
         self.assertEqual(11, len(fuel_maps))
-        print("\nFuelLvl	 Power%		    Fuel% Consum. LapsRem 	Time Rem Exp. Lap Time\n")
+        print('\nFuelLvl	 Power%		    Fuel% Consum. LapsRem 	Time Rem Exp. Lap Time\n')
         for fuel_map in fuel_maps:
             print(fuel_map)
 
@@ -75,9 +79,9 @@ class TestHelper(unittest.TestCase):
         laps = [lap3, lap2, lap1]
 
         result = format_laps_to_table(laps, 11110000 / 1000)
-        print("\n")
+        print('\n')
         print(result)
-        self.assertEqual(len(result.split("\n")), len(laps) + 2)  # +2 for header and last line
+        self.assertEqual(len(result.split('\n')), len(laps) + 2)  # +2 for header and last line
 
     def test_calculate_time_diff_by_distance_from_pickle(self):
         path = os.path.join(os.getcwd(), 'test_data', 'broad_bean_raceway_time_trial_4laps.json')
@@ -110,7 +114,6 @@ class TestHelper(unittest.TestCase):
 
 
 class TestLastReferenceMedian(unittest.TestCase):
-
     def setUp(self):
         self.l_fast = Lap()
         self.l_fast.lap_finish_time = 100
@@ -153,29 +156,33 @@ class TestLastReferenceMedian(unittest.TestCase):
         self.assertIsNone(median, Lap)
 
     def test_three_laps(self):
-        last, reference, median = gt7helper.get_last_reference_median_lap([self.l_slow, self.l_fast, self.l_middle],
-                                                                          None)
+        last, reference, median = gt7helper.get_last_reference_median_lap(
+            [self.l_slow, self.l_fast, self.l_middle], None
+        )
         self.assertEqual(self.l_slow, last)
         self.assertEqual(self.l_fast, reference)
         self.assertIsInstance(median, Lap)
 
     def test_two_three_with_reference(self):
-        last, reference, median = gt7helper.get_last_reference_median_lap([self.l_slow, self.l_fast, self.l_middle],
-                                                                          self.l_reference)
+        last, reference, median = gt7helper.get_last_reference_median_lap(
+            [self.l_slow, self.l_fast, self.l_middle], self.l_reference
+        )
         self.assertEqual(self.l_slow, last)
         self.assertEqual(self.l_reference, reference)
         self.assertIsInstance(median, Lap)
 
     def test_fastest_is_latest(self):
-        last, reference, median = gt7helper.get_last_reference_median_lap([self.l_fast, self.l_slow, self.l_middle],
-                                                                          None)
+        last, reference, median = gt7helper.get_last_reference_median_lap(
+            [self.l_fast, self.l_slow, self.l_middle], None
+        )
         self.assertEqual(self.l_fast, last)
         self.assertEqual(self.l_fast, reference)
         self.assertIsInstance(median, Lap)
 
     def test_reference_slower_than_latest(self):
         last, reference, median = gt7helper.get_last_reference_median_lap(
-            [self.l_reference, self.l_slow, self.l_middle], self.l_fast)
+            [self.l_reference, self.l_slow, self.l_middle], self.l_fast
+        )
         self.assertEqual(self.l_reference, last)
         self.assertEqual(self.l_fast, reference)
         self.assertIsInstance(median, Lap)
@@ -255,15 +262,15 @@ class TestLaps(unittest.TestCase):
         self.assertEqual("SILVIA spec-R Aero (S15) '02", car_name)
 
         non_existing_car_name = gt7helper.get_car_name_for_car_id(89239843984983)
-        self.assertEqual(non_existing_car_name, "CAR-ID-89239843984983")
+        self.assertEqual(non_existing_car_name, 'CAR-ID-89239843984983')
 
     def test_get_car_name_for_car_id_when_csv_file_does_not_exist(self):
-        gt7helper.CARS_CSV_FILENAME = "not_existing_file"
+        gt7helper.CARS_CSV_FILENAME = 'not_existing_file'
         car_name = gt7helper.get_car_name_for_car_id(1448)
-        self.assertEqual(car_name, "CAR-ID-1448")
+        self.assertEqual(car_name, 'CAR-ID-1448')
 
     def test_get_safe_filename(self):
-        self.assertEqual("Cio_123_98", gt7helper.get_safe_filename("Cio 123 '98"))
+        self.assertEqual('Cio_123_98', gt7helper.get_safe_filename("Cio 123 '98"))
 
     def test_get_n_fastest_laps_within_percent_threshold_ignoring_replays(self):
         l1 = Lap()
@@ -286,9 +293,9 @@ class TestLaps(unittest.TestCase):
         l6.lap_finish_time = 1010  # second to last
 
         number_of_laps_to_get = 3
-        filtered_laps = gt7helper.get_n_fastest_laps_within_percent_threshold_ignoring_replays([l1, l2, l3, l4, l5, l6],
-                                                                                               number_of_laps_to_get,
-                                                                                               0.15)
+        filtered_laps = gt7helper.get_n_fastest_laps_within_percent_threshold_ignoring_replays(
+            [l1, l2, l3, l4, l5, l6], number_of_laps_to_get, 0.15
+        )
         self.assertEqual(number_of_laps_to_get, len(filtered_laps))
 
         self.assertEqual(1000, filtered_laps[0].lap_finish_time)
@@ -297,53 +304,52 @@ class TestLaps(unittest.TestCase):
 
         threshold_percentage = 0.006
         tighter_filtered_laps = gt7helper.get_n_fastest_laps_within_percent_threshold_ignoring_replays(
-            [l1, l2, l3, l4, l5, l6], number_of_laps_to_get, percent_threshold=threshold_percentage)
+            [l1, l2, l3, l4, l5, l6], number_of_laps_to_get, percent_threshold=threshold_percentage
+        )
 
         # Should only contain 1000 and 1005 within 0,6% difference
         self.assertEqual(2, len(tighter_filtered_laps))
 
-
     def test_get_variance_for_fastest_laps(self):
         l1 = Lap()
         l1.data_speed = [50, 100, 110, 120]
-        l1.data_time =  [10, 100,200,300]
+        l1.data_time = [10, 100, 200, 300]
 
         l2 = Lap()
         l2.data_speed = [50, 200, 300, 400]
-        l2.data_time =  [10, 100,200,300]
+        l2.data_time = [10, 100, 200, 300]
 
         l3 = Lap()
         l3.data_speed = [50, 150, 200, 200]
-        l3.data_time =  [10, 100,200,300]
+        l3.data_time = [10, 100, 200, 300]
 
         variance = gt7helper.get_variance_for_laps([l1, l2, l3])
-        print("")
+        print('')
         print(variance)
 
     def test_get_n_fastest_laps_within_percent_threshold_ignoring_replays(self):
         empty_lap = Lap()
         empty_lap.data_speed = []
-        empty_lap.data_time =  []
+        empty_lap.data_time = []
 
         l3 = Lap()
         l3.data_speed = [50, 150, 200, 200]
-        l3.data_time =  [10, 100,200,300]
+        l3.data_time = [10, 100, 200, 300]
 
-        laps = [
-            empty_lap, l3
-        ]
+        laps = [empty_lap, l3]
 
-        filtered_laps = get_n_fastest_laps_within_percent_threshold_ignoring_replays(laps, number_of_laps=999, percent_threshold=1)
+        filtered_laps = get_n_fastest_laps_within_percent_threshold_ignoring_replays(
+            laps, number_of_laps=999, percent_threshold=1
+        )
         self.assertEqual(1, len(filtered_laps))
         self.assertEqual([l3], filtered_laps)
 
     def get_test_laps(self):
-        path = os.path.join(
-            os.getcwd(), "test_data", "broad_bean_raceway_time_trial_4laps.json"
-        )
+        path = os.path.join(os.getcwd(), 'test_data', 'broad_bean_raceway_time_trial_4laps.json')
         test_laps = gt7helper.load_laps_from_json(path)
 
         return test_laps
+
     def test_get_peaks_and_valleys_sorted_tuple_list(self):
         test_laps = self.get_test_laps()
 

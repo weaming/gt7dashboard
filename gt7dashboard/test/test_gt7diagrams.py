@@ -18,7 +18,7 @@ from gt7dashboard.gt7lap import Lap
 
 class TestHelper(unittest.TestCase):
     def setUp(self) -> None:
-        self.test_laps = gt7helper.load_laps_from_json("test_data/broad_bean_raceway_time_trial_4laps.json")
+        self.test_laps = gt7helper.load_laps_from_json('test_data/broad_bean_raceway_time_trial_4laps.json')
 
     def test_get_throttle_braking_race_line_diagram(self):
         (
@@ -47,10 +47,10 @@ class TestHelper(unittest.TestCase):
 
         gt7diagrams.add_annotations_to_race_line(race_line, last_lap, reference_lap)
 
-        out_file = "test_out/test_get_throttle_braking_race_line_diagram.html"
+        out_file = 'test_out/test_get_throttle_braking_race_line_diagram.html'
         output_file(out_file)
         save(race_line)
-        print("View file for reference at %s" % out_file)
+        print('View file for reference at %s' % out_file)
 
         file_size = os.path.getsize(out_file)
         self.assertAlmostEqual(file_size, 3000000, delta=1000000)
@@ -63,9 +63,7 @@ class TestHelper(unittest.TestCase):
 
         median_lap_data = gt7helper.get_median_lap(self.test_laps).get_data_dict()
 
-        rd.source_time_diff.data = gt7helper.calculate_time_diff_by_distance(
-            self.test_laps[0], self.test_laps[1]
-        )
+        rd.source_time_diff.data = gt7helper.calculate_time_diff_by_distance(self.test_laps[0], self.test_laps[1])
         rd.source_last_lap.data = lap_data_2
         rd.source_reference_lap.data = lap_data_1
         rd.source_median_lap.data = median_lap_data
@@ -76,8 +74,8 @@ class TestHelper(unittest.TestCase):
 
         rd = self.helper_get_race_diagram()
 
-        out_file = "test_out/test_race_diagram.html"
-        print("View file for reference at %s" % out_file)
+        out_file = 'test_out/test_race_diagram.html'
+        print('View file for reference at %s' % out_file)
         output_file(out_file)
         save(rd.get_layout())
 
@@ -91,21 +89,21 @@ class TestHelper(unittest.TestCase):
 
         # Add a random new lap to the mix
         # TODO Unfortunately, we have only 2 to pick from. Maybe improve this later
-        gray_lap_source = rd.add_additional_lap_to_race_diagram("gray", self.test_laps[1], True)
+        gray_lap_source = rd.add_additional_lap_to_race_diagram('gray', self.test_laps[1], True)
 
         # Should now contain 1 source
         self.assertEqual(1, len(rd.sources_additional_laps))
 
-        out_file = "test_out/test_add_5_additional_laps_to_race_diagram_with_additional_lap.html"
-        print("View file for reference at %s" % out_file)
+        out_file = 'test_out/test_add_5_additional_laps_to_race_diagram_with_additional_lap.html'
+        print('View file for reference at %s' % out_file)
         output_file(out_file)
         save(rd.get_layout())
 
         rd.delete_all_additional_laps()
         self.assertEqual(0, len(rd.sources_additional_laps))
 
-        out_file = "test_out/test_add_5_additional_laps_to_race_diagram_without_additional_lap.html"
-        print("View file for reference at %s" % out_file)
+        out_file = 'test_out/test_add_5_additional_laps_to_race_diagram_without_additional_lap.html'
+        print('View file for reference at %s' % out_file)
         output_file(out_file)
         save(rd.get_layout())
 
@@ -115,8 +113,7 @@ class TestHelper(unittest.TestCase):
 
         with open(out_file, 'r') as fp:
             data = fp.read()
-            self.assertNotIn("1:28.465", data)
-
+            self.assertNotIn('1:28.465', data)
 
     def test_get_fuel_map_html_table(self):
         d = Div()
@@ -127,10 +124,10 @@ class TestHelper(unittest.TestCase):
 
         fuel_map_html_table = gt7diagrams.get_fuel_map_html_table(lap)
         d.text = fuel_map_html_table
-        out_file = "test_out/test_get_fuel_map_html_table.html"
+        out_file = 'test_out/test_get_fuel_map_html_table.html'
         output_file(out_file)
         save(d)
-        print("View file for reference at %s" % out_file)
+        print('View file for reference at %s' % out_file)
 
     def test_get_fuel_map_html_table_negative_fuel_consumption(self):
         d = Div()
@@ -141,30 +138,29 @@ class TestHelper(unittest.TestCase):
 
         fuel_map_html_table = gt7diagrams.get_fuel_map_html_table(lap)
         d.text = fuel_map_html_table
-        out_file = "test_out/test_get_fuel_map_html_table_negative_fuel_consumption.html"
+        out_file = 'test_out/test_get_fuel_map_html_table_negative_fuel_consumption.html'
         output_file(out_file)
         save(d)
-        print("View file for reference at %s" % out_file)
+        print('View file for reference at %s' % out_file)
 
         with open(out_file, 'r') as fp:
             data = fp.read()
-            self.assertIn("No Fuel", data)
+            self.assertIn('No Fuel', data)
 
     def test_get_fuel_map_html_table_with_no_consumption(self):
         d = Div()
         fuel_map_html_table = gt7diagrams.get_fuel_map_html_table(self.test_laps[0])
         d.text = fuel_map_html_table
-        out_file = "test_out/test_get_fuel_map_html_table_with_no_consumption.html"
+        out_file = 'test_out/test_get_fuel_map_html_table_with_no_consumption.html'
         output_file(out_file)
         save(d)
-        print("View file for reference at %s" % out_file)
-
+        print('View file for reference at %s' % out_file)
 
     def test_race_table(self):
         rt = gt7diagrams.RaceTimeTable()
         rt.show_laps(self.test_laps)
 
-        out_file = "test_out/test_race_table.html"
+        out_file = 'test_out/test_race_table.html'
         output_file(out_file)
         save(rt.t_lap_times)
 
@@ -172,8 +168,8 @@ class TestHelper(unittest.TestCase):
         rd = self.helper_get_race_diagram()
         rd.update_fastest_laps_variance(self.test_laps)
 
-        out_file = "test_out/test_get_last_variance.html"
-        print("View file for reference at %s" % out_file)
+        out_file = 'test_out/test_get_last_variance.html'
+        print('View file for reference at %s' % out_file)
         output_file(out_file)
         save(rd.get_layout())
 
@@ -186,8 +182,8 @@ class TestHelper(unittest.TestCase):
         # three times the same lap should result in a flat line
         rd.update_fastest_laps_variance([self.test_laps[0], self.test_laps[0], self.test_laps[0]])
 
-        out_file = "test_out/test_display_flat_line_variance.html"
-        print("View file for reference at %s" % out_file)
+        out_file = 'test_out/test_display_flat_line_variance.html'
+        print('View file for reference at %s' % out_file)
         output_file(out_file)
         save(layout(rd.f_speed_variance))
 
@@ -201,8 +197,8 @@ class TestHelper(unittest.TestCase):
         div = Div()
         div.text = gt7diagrams.get_speed_peak_and_valley_diagram(last_lap, reference_lap)
 
-        out_file = "test_out/test_get_speed_peak_and_valley_diagram_different_size.html"
-        print("View file for reference at %s" % out_file)
+        out_file = 'test_out/test_get_speed_peak_and_valley_diagram_different_size.html'
+        print('View file for reference at %s' % out_file)
         output_file(out_file)
         save(layout(div))
 
@@ -212,7 +208,7 @@ class TestHelper(unittest.TestCase):
         div = Div()
         div.text = gt7diagrams.get_speed_peak_and_valley_diagram(last_lap, reference_lap)
 
-        out_file = "test_out/test_get_speed_peak_and_valley_diagram_same_size.html"
-        print("View file for reference at %s" % out_file)
+        out_file = 'test_out/test_get_speed_peak_and_valley_diagram_same_size.html'
+        print('View file for reference at %s' % out_file)
         output_file(out_file)
         save(layout(div))
