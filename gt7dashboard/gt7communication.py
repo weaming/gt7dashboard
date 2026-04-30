@@ -188,6 +188,7 @@ class GT7Communication(Thread):
         self._last_hb_time = 0
         self._socket = None
         self._socket_started_at = 0
+        self._previous_lap = None
 
         self.current_lap = Lap()
         self.session = Session()
@@ -219,7 +220,6 @@ class GT7Communication(Thread):
                     continue
 
                 s.settimeout(self.SOCKET_TIMEOUT_SECONDS)
-                previous_lap = -1
                 package_id = 0
                 while not self._shall_restart and self._shall_run:
                     try:
@@ -235,25 +235,14 @@ class GT7Communication(Thread):
                             lstlap = struct.unpack('i', ddata[0x7C : 0x7C + 4])[0]
                             curlap = struct.unpack('h', ddata[0x74 : 0x74 + 2])[0]
 
-                            if curlap == 0:
-                                self.session.special_packet_time = 0
-
                             if curlap > 0 and (self.last_data.in_race or self.always_record_data):
-                                if curlap != previous_lap:
-                                    # New lap
-                                    previous_lap = curlap
-
-                                    self.session.special_packet_time += (
-                                        lstlap - self.current_lap.lap_ticks * 1000.0 / 60.0
-                                    )
-                                    self.session.best_lap = bstlap
-
-                                    self.finish_lap()
+                                self._handle_lap_transition(curlap, lstlap, bstlap)
 
                             else:
-                                curLapTime = 0
-                                # Reset lap
-                                self.current_lap = Lap()
+                                self._discard_current_lap()
+                                self._previous_lap = None
+                                if curlap == 0:
+                                    self.session.special_packet_time = 0
 
                             self._log_data(self.last_data)
 
@@ -343,13 +332,64 @@ class GT7Communication(Thread):
     def get_laps(self) -> List[Lap]:
         return self.laps
 
-    def load_laps(self, laps: List[Lap], to_last_position=False, to_first_position=False, replace_other_laps=False):
-        if to_last_position:
+    def load_laps(self, laps: List[Lap], to_last_position=False, to_first_position=False, replace_other_laps=False, merge=False):
+        if merge:
+            existing = {(l.lap_finish_time, l.car_id) for l in self.laps}
+            merged_count = 0
+            for lap in laps:
+                key = (lap.lap_finish_time, getattr(lap, 'car_id', 0))
+                if key not in existing:
+                    self.laps.append(lap)
+                    existing.add(key)
+                    merged_count += 1
+            if merged_count > 0:
+                logger.info('Merged %d laps from loaded data (%d duplicates skipped)', merged_count, len(laps) - merged_count)
+        elif to_last_position:
             self.laps = self.laps + laps
         elif to_first_position:
             self.laps = laps + self.laps
         elif replace_other_laps:
             self.laps = laps
+
+    def delete_laps_by_indices(self, indices: List[int]) -> List[Lap]:
+        removed_laps = []
+
+        for index in sorted(set(indices), reverse=True):
+            if index < 0 or index >= len(self.laps):
+                continue
+
+            removed_laps.append(self.laps.pop(index))
+
+        return removed_laps
+
+    def _handle_lap_transition(self, current_lap_number: int, last_lap_time: int, best_lap_time: int):
+        if self._previous_lap is None:
+            self._previous_lap = current_lap_number
+            if len(self.current_lap.data_speed) == 0 and hasattr(self.last_data, 'current_fuel'):
+                self.current_lap.fuel_at_start = self.last_data.current_fuel
+            return
+
+        if current_lap_number == self._previous_lap:
+            return
+
+        if current_lap_number == self._previous_lap + 1:
+            self.session.special_packet_time += last_lap_time - self.current_lap.lap_ticks * 1000.0 / 60.0
+            self.session.best_lap = best_lap_time
+            self.finish_lap()
+        else:
+            logger.info(
+                'Discarding unfinished lap because lap number changed from %s to %s',
+                self._previous_lap,
+                current_lap_number,
+            )
+            self._discard_current_lap()
+
+        self._previous_lap = current_lap_number
+
+    def _discard_current_lap(self):
+        self.current_lap = Lap()
+        if hasattr(self.last_data, 'current_fuel'):
+            self.current_lap.fuel_at_start = self.last_data.current_fuel
 
     def _log_data(self, data):
 
@@ -496,6 +536,7 @@ class GT7Communication(Thread):
         self.session = Session()
         self.last_data = GTData(None)
         self.laps = []
+        self._previous_lap = None
 
     def set_lap_callback(self, new_lap_callback):
         self.lap_callback_function = new_lap_callback

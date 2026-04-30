@@ -21,7 +21,7 @@ RACE_LINE_MINI = """这是上一圈（蓝色）和参考圈（洋红色）的赛
 如果您使用图表的索引编号快速确定赛道上的测量位置，此地图会很有帮助。
 
 查看 '赛车线' 标签页获取更详细的赛车线。"""
-MANUAL_CONTROLS = """'立即记录圈数' 将立即记录一圈，即使您尚未通过终点线。这有助于任务或驾照考试，其中测试的结束不一定与终点线相同。
+MANUAL_CONTROLS = """'立即记录圈' 将立即记录一圈，即使您尚未通过终点线。这有助于任务或驾照考试，其中测试的结束不一定与终点线相同。
 
 '记录回放' 复选框允许您记录回放。请注意，计时赛前后背景中的活动也会被视为回放。即赛车在菜单背景中在赛道上行驶的情况。
 
@@ -33,19 +33,19 @@ TIME_DIFF = """此图表显示上一圈与参考圈之间的相对时间差。
 
 如果您在此图表中看到向上或向下的凸起，分别表示您在此位置较慢或较快。
 """
-LAP_CONTROLS = """'重置圈数' 按钮可重置所有圈数。如果您在会话中切换赛道或赛车，这将很有用。否则不同的赛道会在仪表板中混合。
-'保存圈数' 将保存您记录的圈数到文件。之后您可以通过右侧的下拉列表加载圈数。"""
-SPEED_DIAGRAM = """所选圈数的总速度。此值取决于您的游戏设置为 km/h 或 mph。"""
-THROTTLE_DIAGRAM = """所选圈数的油门压力，范围为 0% 至 100%。"""
-BRAKING_DIAGRAM = """所选圈数的刹车压力，范围为 0% 至 100%。"""
-COASTING_DIAGRAM = """所选圈数的滑行比例，范围为 0% 至 100%。滑行是指既未踩油门也未踩刹车的状态。"""
-GEAR_DIAGRAM = """所选圈数的当前档位。"""
-RPM_DIAGRAM = '所选圈数的当前 RPM。'
-BOOST_DIAGRAM = '所选圈数的当前增压值（x100 kPa）。'
+LAP_CONTROLS = """'重置圈' 按钮可重置所有圈。如果您在会话中切换赛道或赛车，这将很有用。否则不同的赛道会在仪表板中混合。
+'保存圈' 将保存您记录的圈到文件。之后您可以通过右侧的下拉列表加载圈。"""
+SPEED_DIAGRAM = """所选圈的总速度。此值取决于您的游戏设置为 km/h 或 mph。"""
+THROTTLE_DIAGRAM = """所选圈的油门压力，范围为 0% 至 100%。"""
+BRAKING_DIAGRAM = """所选圈的刹车压力，范围为 0% 至 100%。"""
+COASTING_DIAGRAM = """所选圈的滑行比例，范围为 0% 至 100%。滑行是指既未踩油门也未踩刹车的状态。"""
+GEAR_DIAGRAM = """所选圈的当前档位。"""
+RPM_DIAGRAM = '所选圈的当前 RPM。'
+BOOST_DIAGRAM = '所选圈的当前增压值（x100 kPa）。'
 TIRE_DIAGRAM = """轮胎速度与车速之间的关系。如果轮胎速度快于车速，轮胎可能正在打滑。如果轮胎速度慢于车速，轮胎可能正在抱死。用于判断您的车辆控制。"""
 
-SPEED_PEAKS_AND_VALLEYS = """所选圈数的速度峰值和谷值列表。我们假设峰值代表直道（S），谷值代表弯道（T）。用于比较上一圈和参考圈在赛道各个位置的速度差异。"""
-TIME_TABLE = """包含当前会话记录信息的表格。# 是游戏报告的圈数编号。如果您重新开始会话，可能存在多个相同编号的圈数。时间和差值自解释。信息列包含额外元数据，例如该圈是否为回放。
+SPEED_PEAKS_AND_VALLEYS = """所选圈的速度峰值和谷值列表。我们假设峰值代表直道（S），谷值代表弯道（T）。用于比较上一圈和参考圈在赛道各个位置的速度差异。"""
+TIME_TABLE = """包含当前会话记录信息的表格。# 是游戏报告的圈编号。如果您重新开始会话，可能存在多个相同编号的圈。时间和差值自解释。信息列包含额外元数据，例如该圈是否为回放。
 燃油消耗是当前圈消耗的燃油量。
 
 接下来是圈速特征的基本指标。以 tick 为单位计数，即游戏报告状态的实例数。例如全油门 = 500 表示您在游戏发送遥测数据的 500 个实例中处于全油门状态。
@@ -68,11 +68,5 @@ RACE_LINE_BIG = """这是上一圈（蓝色）和参考圈（洋红色）的赛�
 YAW_RATE_DIAGRAM = """这是赛车的每秒横摆角速度。用于确定最大旋转点（MRP）。此时通常应开始加速。"""
 
 
-def get_help_div(help_text_resource):
-    return Div(text=get_help_text_resource(help_text_resource), width=7, height=5)
-
-
-def get_help_text_resource(help_text_resource):
-    return f"""
-    <div title="{help_text_resource}" style="display:inline-flex;align-items:center;justify-content:center;width:1.2em;height:1.2em;border:1px solid;border-radius:50%;font-size:0.8em;cursor:help;line-height:1;">?</div>
-    """
+def get_help_div(_help_text_resource):
+    return Div(text='', width=0, height=0, visible=False)

@@ -1,5 +1,4 @@
 import copy
-import itertools
 import logging
 import os
 import time
@@ -11,29 +10,26 @@ import bokeh.application
 from bokeh.driving import linear
 from bokeh.layouts import layout
 from bokeh.models import (
-    Select,
-    Paragraph,
-    ColumnDataSource,
     Button,
-    Div,
     CheckboxGroup,
+    ColumnDataSource,
+    Div,
+    Paragraph,
+    Select,
     TabPanel,
     Tabs,
 )
-from bokeh.palettes import Plasma11 as palette
-from bokeh.plotting import curdoc
-from bokeh.plotting import figure
+from bokeh.plotting import curdoc, figure
 
 from gt7dashboard import gt7communication, gt7diagrams, gt7help, gt7helper
-from gt7dashboard.gt7diagrams import get_speed_peak_and_valley_diagram
-
+from gt7dashboard.gt7diagrams import get_speed_peak_and_valley_diagram, hide_toolbar
 from gt7dashboard.gt7help import get_help_div
 from gt7dashboard.gt7helper import (
-    list_lap_files_from_path,
     calculate_time_diff_by_distance,
+    list_lap_files_from_path,
+    load_laps_from_json,
     save_laps_to_json,
     save_laps_to_path,
-    load_laps_from_json,
 )
 from gt7dashboard.gt7lap import Lap
 
@@ -46,6 +42,7 @@ RECONNECT_AFTER_SECONDS = 8
 RECONNECT_INTERVAL_SECONDS = 8
 FIRST_TELEMETRY_RECONNECT_AFTER_SECONDS = 30
 CONNECTION_STATUS_REFRESH_MS = 250
+ADDITIONAL_LAP_COLORS = ['blue', 'magenta', 'green', 'orange', 'black', 'purple']
 
 
 def update_connection_info():
@@ -347,6 +344,30 @@ def reset_button_handler(event):
     g_telemetry_update_needed = True
 
 
+def delete_selected_laps_handler(event):
+    global g_reference_lap_selected
+    global g_telemetry_update_needed
+
+    selected_indices = sorted(set(race_time_table.lap_times_source.selected.indices), reverse=True)
+    if len(selected_indices) == 0:
+        return
+
+    removed_laps = app.gt7comm.delete_laps_by_indices(selected_indices)
+    if len(removed_laps) == 0:
+        return
+
+    logger.info('Deleted %d selected laps', len(removed_laps))
+
+    if g_reference_lap_selected in removed_laps:
+        g_reference_lap_selected = None
+        reference_lap_select.value = '-1'
+
+    race_time_table.lap_times_source.selected.indices = []
+    race_diagram.delete_all_additional_laps()
+    g_telemetry_update_needed = True
+    update_lap_change()
+
+
 def always_record_checkbox_handler(event, old, new):
     if len(new) == 2:
         logger.info('Set always record data to True')
@@ -371,6 +392,10 @@ def load_laps_handler(attr, old, new):
     logger.info('Loading %s' % new)
     race_diagram.delete_all_additional_laps()
     app.gt7comm.load_laps(load_laps_from_json(new), replace_other_laps=True)
+
+
+def load_button_handler(event):
+    load_laps_handler(None, None, select.value)
 
 
 def load_reference_lap_handler(attr, old, new):
@@ -481,6 +506,17 @@ if not hasattr(app, 'gt7comm'):
             logger.exception('Error in lap auto-save')
 
     app.gt7comm.set_lap_callback(on_lap_completed)
+
+    # Auto-load all saved JSON files from data/ directory (deduplicated merge)
+    if not load_laps_path:
+        saved_files = list_lap_files_from_path(os.path.join(os.getcwd(), 'data'))
+        if saved_files:
+            for lap_file in saved_files:
+                loaded = load_laps_from_json(lap_file.path)
+                app.gt7comm.load_laps(loaded, merge=True)
+            logger.info(
+                'Auto-restored %d total laps from %d file(s) in data/' % (len(app.gt7comm.laps), len(saved_files))
+            )
 else:
     # Reuse existing thread
     if not app.gt7comm.is_connected():
@@ -513,36 +549,36 @@ stored_lap_files = gt7helper.bokeh_tuple_for_list_of_lapfiles(
 race_diagram = gt7diagrams.RaceDiagram(width=1000)
 race_time_table = gt7diagrams.RaceTimeTable()
 corner_analysis = gt7diagrams.CornerAnalysis(width=1000)
-colors = itertools.cycle(palette)
 
 
 def table_row_selection_callback(attrname, old, new):
     global g_laps_stored
     global race_diagram
     global race_time_table
-    global colors
 
-    selectionIndex = race_time_table.lap_times_source.selected.indices
-    logger.info('you have selected the row nr ' + str(selectionIndex))
+    selection_index = race_time_table.lap_times_source.selected.indices
+    logger.info('you have selected the row nr ' + str(selection_index))
 
-    colors = ['blue', 'magenta', 'green', 'orange', 'black', 'purple']
-    # max_additional_laps = len(palette)
-    colors_index = (
-        len(race_diagram.sources_additional_laps) + race_diagram.number_of_default_laps
-    )  # which are the default colors
+    # Update delete button label with selected lap numbers
+    if selection_index:
+        lap_numbers = [g_laps_stored[i].number for i in selection_index if i < len(g_laps_stored)]
+        delete_selected_laps_button.label = '删除选中圈 (#' + ', #'.join(str(n) for n in lap_numbers) + ')'
+    else:
+        delete_selected_laps_button.label = '删除选中圈'
 
-    for index in selectionIndex:
-        if index >= len(colors):
-            colors_index = 0
+    color_index = len(race_diagram.sources_additional_laps)
 
-        # get element at index of iterator
-        color = colors[colors_index]
-        colors_index += 1
+    for index in selection_index:
+        if index >= len(g_laps_stored):
+            continue
+
         lap_to_add = g_laps_stored[index]
-        new_lap_data_source = race_diagram.add_lap_to_race_diagram(
-            color, legend=g_laps_stored[index].title, visible=True
-        )
-        new_lap_data_source.data = lap_to_add.get_data_dict()
+        if race_diagram.has_additional_lap(lap_to_add):
+            continue
+
+        color = ADDITIONAL_LAP_COLORS[color_index % len(ADDITIONAL_LAP_COLORS)]
+        color_index += 1
+        race_diagram.add_additional_lap_to_race_diagram(color, lap_to_add, visible=True)
 
 
 race_time_table.lap_times_source.selected.on_change('indices', table_row_selection_callback)
@@ -568,7 +604,7 @@ s_race_line = figure(
 # compared to their actual coordinates
 s_race_line.y_range.flipped = True
 
-s_race_line.toolbar.autohide = True
+hide_toolbar(s_race_line)
 
 last_lap_race_line = s_race_line.line(
     x='raceline_x',
@@ -587,21 +623,25 @@ reference_lap_race_line = s_race_line.line(
     source=ColumnDataSource(data={'raceline_x': [], 'raceline_z': []}),
 )
 
-select_title = Paragraph(text='加载圈数:', align='center')
+select_title = Paragraph(text='', align='center')
 select = Select(value='laps', options=stored_lap_files)
-select.on_change('value', load_laps_handler)
+load_button = Button(label='加载')
+load_button.on_click(load_button_handler)
 
 reference_lap_select = Select(value='laps')
 reference_lap_select.on_change('value', load_reference_lap_handler)
 
-manual_log_button = Button(label='立即记录圈数')
+manual_log_button = Button(label='立即记录')
 manual_log_button.on_click(log_lap_button_handler)
 
-save_button = Button(label='保存圈数')
+save_button = Button(label='保存所有')
 save_button.on_click(save_button_handler)
 
-reset_button = Button(label='重置圈数')
+reset_button = Button(label='清空')
 reset_button.on_click(reset_button_handler)
+
+delete_selected_laps_button = Button(label='删除选中圈')
+delete_selected_laps_button.on_click(delete_selected_laps_handler)
 
 div_tuning_info = Div(width=200, height=100)
 
@@ -623,7 +663,7 @@ LABELS = ['记录回放']
 checkbox_group = CheckboxGroup(labels=LABELS, active=[1])
 checkbox_group.on_change('active', always_record_checkbox_handler)
 
-race_time_table.t_lap_times.width = 900
+race_time_table.t_lap_times.width = 970
 
 l1 = layout(
     children=[
@@ -633,9 +673,11 @@ l1 = layout(
             div_gt7_dashboard,
             div_header_line,
             reset_button,
+            delete_selected_laps_button,
             save_button,
             select_title,
             select,
+            load_button,
             get_help_div(gt7help.LAP_CONTROLS),
         ],
         [

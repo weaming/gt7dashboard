@@ -10,6 +10,10 @@ from gt7dashboard import gt7helper
 from gt7dashboard.gt7lap import Lap
 
 
+def hide_toolbar(target_figure: figure):
+    target_figure.toolbar.visible = False
+
+
 def get_throttle_braking_race_line_diagram():
     # TODO Make this work, tooltips just show breakpoint
     race_line_tooltips = [('index', '$index')]
@@ -24,7 +28,7 @@ def get_throttle_braking_race_line_diagram():
     # compared to their actual coordinates
     s_race_line.y_range.flipped = True
 
-    s_race_line.toolbar.autohide = True
+    hide_toolbar(s_race_line)
 
     s_race_line.axis.visible = False
     s_race_line.xgrid.visible = False
@@ -108,24 +112,25 @@ class RaceTimeTable(object):
     def __init__(self):
 
         self.columns = [
-            TableColumn(field='number', title='#'),
-            TableColumn(field='time', title='时间'),
-            TableColumn(field='diff', title='差值'),
-            TableColumn(field='timestamp', title='时间戳'),
-            TableColumn(field='info', title='信息'),
-            TableColumn(field='fuelconsumed', title='燃油消耗'),
-            TableColumn(field='fullthrottle', title='全油门'),
-            TableColumn(field='fullbreak', title='全刹车'),
-            TableColumn(field='nothrottle', title='滑行'),
-            TableColumn(field='tyrespinning', title='轮胎打滑'),
-            TableColumn(field='car_name', title='赛车'),
+            TableColumn(field='number', title='#', width=40),
+            TableColumn(field='time', title='时间', width=90),
+            TableColumn(field='diff', title='差值', width=85),
+            TableColumn(field='timestamp', title='时间戳', width=155),
+            TableColumn(field='info', title='信息', width=55),
+            TableColumn(field='fuelconsumed', title='燃油消耗', width=75),
+            TableColumn(field='fullthrottle', title='全油门', width=65),
+            TableColumn(field='fullbreak', title='全刹车', width=60),
+            TableColumn(field='nothrottle', title='滑行', width=50),
+            TableColumn(field='tyrespinning', title='轮胎打滑', width=70),
+            TableColumn(field='car_name', title='赛车', width=250),
         ]
 
         self.lap_times_source = ColumnDataSource(gt7helper.pd_data_frame_from_lap([], best_lap_time=0))
         self.t_lap_times: DataTable
 
         self.t_lap_times = DataTable(
-            source=self.lap_times_source, columns=self.columns, index_position=None, css_classes=['lap_times_table']
+            source=self.lap_times_source, columns=self.columns, index_position=None, css_classes=['lap_times_table'],
+            resizable=True,
         )
         # This will lead to not being rendered
         # self.t_lap_times.autosize_mode = "fit_columns"
@@ -300,7 +305,20 @@ class RaceDiagram(object):
             active_drag='box_zoom',
         )
 
-        self.f_speed.toolbar.autohide = True
+        for diagram in [
+            self.f_speed,
+            self.f_speed_variance,
+            self.f_time_diff,
+            self.f_throttle,
+            self.f_braking,
+            self.f_coasting,
+            self.f_tires,
+            self.f_rpm,
+            self.f_gear,
+            self.f_boost,
+            self.f_yaw_rate,
+        ]:
+            hide_toolbar(diagram)
 
         span_zero_time_diff = bokeh.models.Span(
             location=0,
@@ -311,34 +329,23 @@ class RaceDiagram(object):
         )
         self.f_time_diff.add_layout(span_zero_time_diff)
 
-        self.f_time_diff.toolbar.autohide = True
-
         self.f_speed_variance.xaxis.visible = False
-        self.f_speed_variance.toolbar.autohide = True
 
         self.f_throttle.xaxis.visible = False
-        self.f_throttle.toolbar.autohide = True
 
         self.f_braking.xaxis.visible = False
-        self.f_braking.toolbar.autohide = True
 
         self.f_coasting.xaxis.visible = False
-        self.f_coasting.toolbar.autohide = True
 
         self.f_tires.xaxis.visible = False
-        self.f_tires.toolbar.autohide = True
 
         self.f_gear.xaxis.visible = False
-        self.f_gear.toolbar.autohide = True
 
         self.f_rpm.xaxis.visible = False
-        self.f_rpm.toolbar.autohide = True
 
         self.f_boost.xaxis.visible = False
-        self.f_boost.toolbar.autohide = True
 
         self.f_yaw_rate.xaxis.visible = False
-        self.f_yaw_rate.toolbar.autohide = True
 
         self.source_time_diff = ColumnDataSource(data={'distance': [], 'timedelta': []})
         self.f_time_diff.line(
@@ -356,6 +363,7 @@ class RaceDiagram(object):
 
         self.source_median_lap = self.add_lap_to_race_diagram('green', '中位圈', False)
 
+        self.f_speed.legend.location = 'top_left'
         self.f_speed.legend.click_policy = 'hide'
         self.f_throttle.legend.click_policy = self.f_speed.legend.click_policy
         self.f_braking.legend.click_policy = self.f_speed.legend.click_policy
@@ -365,6 +373,9 @@ class RaceDiagram(object):
         self.f_rpm.legend.click_policy = self.f_speed.legend.click_policy
         self.f_boost.legend.click_policy = self.f_speed.legend.click_policy
         self.f_yaw_rate.legend.click_policy = self.f_speed.legend.click_policy
+
+        for fig in [self.f_throttle, self.f_braking, self.f_coasting, self.f_tires, self.f_gear, self.f_rpm, self.f_boost, self.f_yaw_rate]:
+            fig.legend.location = 'top_left'
 
         # Leave padding on the left because rpm is 4 digits and diagrams will not start at the same position otherwise
         min_border_left = 60
@@ -407,9 +418,17 @@ class RaceDiagram(object):
         )
 
     def add_additional_lap_to_race_diagram(self, color: str, lap: Lap, visible: bool = True):
+        if self.has_additional_lap(lap):
+            return None
+
         source = self.add_lap_to_race_diagram(color, lap.title, visible)
         source.data = lap.get_data_dict()
         self.sources_additional_laps.append(source)
+        self.additional_laps.append(lap)
+        return source
+
+    def has_additional_lap(self, lap: Lap) -> bool:
+        return any(additional_lap is lap for additional_lap in self.additional_laps)
 
     def update_fastest_laps_variance(self, laps):
         # FIXME, many many data points, mayabe reduce by the amount of laps?
@@ -549,6 +568,7 @@ class RaceDiagram(object):
     def delete_all_additional_laps(self):
         # Delete all but first three in list — iterate in reverse to avoid index shifting
         self.sources_additional_laps = []
+        self.additional_laps = []
 
         for i in range(len(self.f_speed.renderers) - 1, self.number_of_default_laps - 1, -1):
             self.f_speed.renderers.pop(i)
@@ -556,6 +576,8 @@ class RaceDiagram(object):
             self.f_braking.renderers.pop(i)
             self.f_coasting.renderers.pop(i)
             self.f_tires.renderers.pop(i)
+            self.f_gear.renderers.pop(i)
+            self.f_rpm.renderers.pop(i)
             self.f_boost.renderers.pop(i)
             self.f_yaw_rate.renderers.pop(i)
 
@@ -564,6 +586,8 @@ class RaceDiagram(object):
             self.f_braking.legend.items.pop(i)
             self.f_coasting.legend.items.pop(i)
             self.f_tires.legend.items.pop(i)
+            self.f_gear.legend.items.pop(i)
+            self.f_rpm.legend.items.pop(i)
             self.f_yaw_rate.legend.items.pop(i)
             self.f_boost.legend.items.pop(i)
 
@@ -868,7 +892,7 @@ class CornerAnalysis:
             width=0.8,
             color='steelblue',
         )
-        self.f_consistency.toolbar.autohide = True
+        hide_toolbar(self.f_consistency)
 
         # Theoretical best comparison chart
         self.source_theoretical = ColumnDataSource(
@@ -910,7 +934,7 @@ class CornerAnalysis:
             legend_label='理论最佳',
         )
         self.f_theoretical.legend.click_policy = 'hide'
-        self.f_theoretical.toolbar.autohide = True
+        hide_toolbar(self.f_theoretical)
 
         # Summary text
         self.summary_div = Div(width=width, height=60)

@@ -2,6 +2,7 @@ import os
 import socket
 import time
 import unittest
+from types import SimpleNamespace
 
 from gt7dashboard import gt7communication
 from gt7dashboard.gt7lap import Lap
@@ -18,6 +19,63 @@ class GT7CommunicationSocketTest(unittest.TestCase):
         gt7comm.restart()
 
         self.assertFalse(gt7comm._send_hb(udp_socket))
+
+    def test_first_observed_lap_does_not_finish_current_lap(self):
+        gt7comm = gt7communication.GT7Communication('127.0.0.1')
+        gt7comm.last_data = SimpleNamespace(current_fuel=90)
+        gt7comm.current_lap.data_speed = [100]
+
+        gt7comm._handle_lap_transition(current_lap_number=2, last_lap_time=60000, best_lap_time=60000)
+
+        self.assertEqual(0, len(gt7comm.laps))
+        self.assertEqual(2, gt7comm._previous_lap)
+        self.assertEqual([100], gt7comm.current_lap.data_speed)
+
+    def test_regular_lap_advance_finishes_current_lap(self):
+        gt7comm = gt7communication.GT7Communication('127.0.0.1')
+        gt7comm._previous_lap = 1
+        gt7comm.current_lap.data_speed = [100]
+        gt7comm.current_lap.lap_ticks = 60
+        gt7comm.last_data = SimpleNamespace(
+            current_fuel=90,
+            last_lap=60000,
+            total_laps=2,
+            current_lap=2,
+            car_id=1,
+            estimated_top_speed=250,
+        )
+
+        gt7comm._handle_lap_transition(current_lap_number=2, last_lap_time=60000, best_lap_time=60000)
+
+        self.assertEqual(1, len(gt7comm.laps))
+        self.assertEqual(1, gt7comm.laps[0].number)
+        self.assertEqual([], gt7comm.current_lap.data_speed)
+        self.assertEqual(90, gt7comm.current_lap.fuel_at_start)
+
+    def test_lap_number_reset_discards_unfinished_lap(self):
+        gt7comm = gt7communication.GT7Communication('127.0.0.1')
+        gt7comm._previous_lap = 2
+        gt7comm.current_lap.data_speed = [100]
+        gt7comm.last_data = SimpleNamespace(current_fuel=95)
+
+        gt7comm._handle_lap_transition(current_lap_number=1, last_lap_time=60000, best_lap_time=60000)
+
+        self.assertEqual(0, len(gt7comm.laps))
+        self.assertEqual(1, gt7comm._previous_lap)
+        self.assertEqual([], gt7comm.current_lap.data_speed)
+        self.assertEqual(95, gt7comm.current_lap.fuel_at_start)
+
+    def test_delete_laps_by_indices(self):
+        gt7comm = gt7communication.GT7Communication('127.0.0.1')
+        gt7comm.laps = [Lap(), Lap(), Lap()]
+        gt7comm.laps[0].number = 0
+        gt7comm.laps[1].number = 1
+        gt7comm.laps[2].number = 2
+
+        removed_laps = gt7comm.delete_laps_by_indices([1, 99, 1])
+
+        self.assertEqual([1], [lap.number for lap in removed_laps])
+        self.assertEqual([0, 2], [lap.number for lap in gt7comm.laps])
 
 
 # check if host is up

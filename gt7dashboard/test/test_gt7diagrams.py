@@ -90,6 +90,9 @@ class TestHelper(unittest.TestCase):
 
         # Should now contain 1 source
         self.assertEqual(1, len(rd.sources_additional_laps))
+        self.assertEqual(1, len(rd.additional_laps))
+        self.assertEqual(rd.number_of_default_laps + 1, len(rd.f_gear.renderers))
+        self.assertEqual(rd.number_of_default_laps + 1, len(rd.f_rpm.renderers))
 
         out_file = 'test_out/test_add_5_additional_laps_to_race_diagram_with_additional_lap.html'
         print('View file for reference at %s' % out_file)
@@ -98,6 +101,9 @@ class TestHelper(unittest.TestCase):
 
         rd.delete_all_additional_laps()
         self.assertEqual(0, len(rd.sources_additional_laps))
+        self.assertEqual(0, len(rd.additional_laps))
+        self.assertEqual(rd.number_of_default_laps, len(rd.f_gear.renderers))
+        self.assertEqual(rd.number_of_default_laps, len(rd.f_rpm.renderers))
 
         out_file = 'test_out/test_add_5_additional_laps_to_race_diagram_without_additional_lap.html'
         print('View file for reference at %s' % out_file)
