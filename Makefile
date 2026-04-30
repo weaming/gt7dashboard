@@ -19,9 +19,6 @@ serve:
 normal:
 	uv run gt7telemetry.py ${PS_IP}
 
-doc:
-	uv run generate_doc.py
-
 setup: deps car_lists
 
 deps:

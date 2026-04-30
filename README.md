@@ -1,6 +1,6 @@
 # gt7dashboard
 
-gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 遥测接口，首次描述见[此处](https://www.gtplanet.net/forum/threads/gt7-is-compatible-with-motion-rig.410728 )。此项目最初是 Bornhall 的 [gt7telemetry](https://github.com/Bornhall/gt7telemetry) 的一个分支。
+gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 遥测接口，首次描述见[此处](https://www.gtplanet.net/forum/threads/gt7-is-compatible-with-motion-rig.410728)。此项目最初是 Bornhall 的 [gt7telemetry](https://github.com/Bornhall/gt7telemetry) 的一个分支。
 
 详见[手册](#手册)获取详细说明。
 
@@ -9,70 +9,31 @@ gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 �
 ![](README.assets/screenshot.png)
 ![](README.assets/screenshot_race_line.png)
 
-* 上一圈与参考圈的时间差图
-  * *虚线以下*表示优于参考圈，*虚线以上*表示劣于参考圈
-* 赛车线视图，显示上一圈和参考圈的速度峰值和谷值
-* 上一圈、参考圈和中位圈的速度/距离图
-  * 中位圈由所有近期圈速的中位数计算得出
-* 速度偏差图，显示最佳圈速中的速度偏差
-* 参考圈选择器
-  * 默认为最佳圈
-* 油门/距离图
-* 刹车/距离图
-* 滑行/距离图
-* 赛车线图
-* 速度峰值和谷值表，对比参考圈和上一圈
-* 相对燃油图，用于选择合适的燃油设置以达到目标距离、剩余时间和期望圈速
-* 所有近期圈速列表及附加指标，以百分比 * 1000 计量以便阅读
-* 调校相关附加数据，如最高速度和最小车身高度
-* 保存当前圈速和重置所有圈速的功能
-* 近期圈速的赛车线，显示油门（绿色）、刹车（红色）和滑行（蓝色）
-* 仅含燃油图的附加"比赛视图"
-* 可选刹车点（较慢），设置 `GT7_ADD_BRAKEPOINTS=true` 启用
-* 从圈速表中添加附加圈速到图表中
+- 上一圈与参考圈的时间差图
+  - *虚线以下*表示优于参考圈，*虚线以上*表示劣于参考圈
+- 赛车线视图，显示上一圈和参考圈的速度峰值和谷值
+- 上一圈、参考圈和中位圈的速度/距离图
+  - 中位圈由所有近期圈速的中位数计算得出
+- 速度偏差图，显示最佳圈速中的速度偏差
+- 参考圈选择器
+  - 默认为最佳圈
+- 油门/距离图
+- 刹车/距离图
+- 滑行/距离图
+- 赛车线图
+- 速度峰值和谷值表，对比参考圈和上一圈
+- 相对燃油图，用于选择合适的燃油设置以达到目标距离、剩余时间和期望圈速
+- 所有近期圈速列表及附加指标，以百分比 \* 1000 计量以便阅读
+- 调校相关附加数据，如最高速度和最小车身高度
+- 保存当前圈速和重置所有圈速的功能
+- 近期圈速的赛车线，显示油门（绿色）、刹车（红色）和滑行（蓝色）
+- 仅含燃油图的附加"比赛视图"
+- 可选刹车点（较慢），设置 `GT7_ADD_BRAKEPOINTS=true` 启用
+- 从圈速表中添加附加圈速到图表中
 
 ### 获取演示圈或回放的遥测数据
 
 启用"记录回放"复选框以始终记录回放。否则，仅记录您实际驾驶的圈速。
-
-## 简易安装（Windows）
-
-无需 Python。从 [Releases](https://github.com/snipem/gt7dashboard/releases) 页面下载最新的预构建 Windows 包：
-
-1. 从最新版本下载 `gt7dashboard-windows.zip`。
-2. 将 zip 解压到任意文件夹。
-3. 双击 **`gt7dashboard.exe`**。
-4. 弹出对话框要求输入您的 PlayStation IP 地址。
-   - 在 PS5 上通过 **设置 → 网络 → 查看连接状态** 找到。
-   - 留空以使用自动广播发现。
-5. 仪表盘将在您的默认浏览器中自动打开。
-
-> **提示：** 保存的圈速文件存储在 `gt7dashboard.exe` 旁边的 `data` 文件夹中。
-
-## 如何运行
-
-您需要安装可用的 Python。查看[此处](https://wiki.python.org/moin/BeginnersGuide/Download)获取安装说明。
-
-* 如果您在 Windows 上
-  * 需要 Microsoft Visual C++ 14.0 或更高版本。通过 "Microsoft C++ Build Tools" 获取：https://visualstudio.microsoft.com/visual-cpp-build-tools/
-
-  * 双击运行 `run.ps1` 文件
-* 如果您在 MacOS 上，运行 `run.command` 文件
-* 如果您在 MacOS 上且使用 Homebrew 管理 Python3 安装，运行 `brew.command` 文件
-* 如果您在 Linux 上，运行 `run.sh` 文件
-
-`pip3` 或 `python3` 命令可能在您的操作系统上有所不同。尝试使用 `pip` 或 `python`。
-
-## 高级用户运行方式
-
-1. （一次性）`uv sync` 安装 Python 依赖
-2. （可选，一次性）`uv run helper/download_cars_csv.py` 下载赛车名称列表。没有此文件，赛车名称将仅显示为 `CAR-ID-123`。
-3. 运行仪表盘
-    - （Mac/Linux）`uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
-    - （Windows）`uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
-4. （可选）使用自定义 IP 运行仪表盘
-   - （Mac/Linux）`GT7_PLAYSTATION_IP=<主机 IP 地址> uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
-   - （Windows）`set GT7_PLAYSTATION_IP=<主机 IP 地址>` 然后 `uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
 
 ## 故障排除
 
@@ -83,55 +44,9 @@ gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 �
 提供 `Dockerfile` 和[预构建镜像](https://github.com/snipem/gt7dashboard/pkgs/container/gt7dashboard)。
 
 ```bash
-# 从 Dockerfile 构建
-docker build -t gt7dashboard /home/user/work/gt7dashboard
-
-# 从此仓库拉取
-docker pull ghcr.io/snipem/gt7dashboard:main
-
-docker run -d --restart unless-stopped \
-  --name gt7dashboard \
-  --user 1002 \
-  -p 5006:5006/tcp \
-  -p 33740:33740/udp \
-  -v /home/user/gt7data/:/usr/src/app/data \
-  -e BOKEH_ALLOW_WS_ORIGIN=domain_of_server:5006 \
-  -e GT7_PLAYSTATION_IP=<playstation ip> \
-  -e TZ=Europe/Berlin \
-  gt7dashboard
+# update PS5_IP in run-in-docker.sh, then:
+make run-in-docker
 ```
-
-以下是 `docker-compose` 配置示例：
-
-```yaml
-    gt7dashboard:
-        build:
-            context: /home/user/work/gt7dashboard
-        restart: unless-stopped
-        container_name: gt7dashboard
-        user: "1002"
-        ports:
-            - "5006:5006/tcp"
-            - "33740:33740/udp"
-        volumes:
-            - /home/user/gt7data/:/usr/src/app/data
-        environment:
-            - BOKEH_ALLOW_WS_ORIGIN=domain_of_server:5006
-            - GT7_PLAYSTATION_IP=<playstation ip>
-            - TZ=Europe/Berlin
-```
-
-提示：您应该设置 `GT7_PLAYSTATION_IP` 环境变量，因为 Docker 容器默认不允许发送 UDP 广播。这是未设置 IP 时的默认行为。
-
-## 圈速文件
-
-如果您想编辑圈速文件，请使用 JSON 编辑器。例如 `cat ... | jq -c '.[0:4]' > ...` 将圈速文件缩短为前 4 圈。
-
-## 贡献
-
-请为所有新功能、计算等添加单元测试。
-
-如果您想向手册添加内容，请编辑 `gt7dashboard/gt7help.py` 并使用 `make doc` 生成 `README.md`。
 
 ## 手册
 
@@ -161,7 +76,6 @@ docker run -d --restart unless-stopped \
 
 如果您在此图表中看到向上或向下的凸起，分别表示您在此位置较慢或较快。
 
-
 #### 手动控制
 
 ![screenshot_header](README.assets/screenshot_manualcontrols.png)
@@ -171,7 +85,6 @@ docker run -d --restart unless-stopped \
 '记录回放' 复选框允许您记录回放。请注意，计时赛前后背景中的活动也会被视为回放。即赛车在菜单背景中在赛道上行驶的情况。
 
 在 '最佳圈' 下拉列表中，您可以选择参考圈。通常这指向当前会议的最佳圈。
-
 
 #### 速度
 
@@ -208,7 +121,6 @@ docker run -d --restart unless-stopped \
 您可能会从查看此线起伏的赛道位置中获得一致性改进的洞察。
 
 右侧列表显示了用于速度偏差分析的最佳圈速。
-
 
 我从 [Your Data Driven Podcast](https://www.yourdatadriven.com/) 获得此图表的灵感。
 在该播客的两期不同节目中，[Peter Krause](https://www.yourdatadriven.com/ep12-go-faster-now-with-motorsports-data-analytics-guru-peter-krause/) 和 [Ross Bentley](https://www.yourdatadriven.com/ep3-tips-for-racing-faster-with-ross-bentley/) 都提到了此可视化。
@@ -277,7 +189,6 @@ docker run -d --restart unless-stopped \
 您可以点击其中一个圈速将其添加到上方的图表中。如果重置视图或重新加载页面，这些圈速将被删除。
 
 赛车列显示赛车名称。您需要下载 `db/cars.csv` 文件才能显示。
-
 
 #### 燃油图
 
