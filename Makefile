@@ -1,32 +1,37 @@
 SHELL=/bin/bash -O expand_aliases
+PS_IP=192.168.1.100
+
+run-in-docker: build-docker
+	bash run-in-docker.sh
+
+build-docker:
+	HTTPS_PROXY=http://localhost:7890 docker build -t gt7-dashboard .
 
 limited:
-	GT7_LIMITED=true python3 gt7telemetry.py 192.168.178.120
+	GT7_LIMITED=true uv run gt7telemetry.py ${PS_IP}
 
 race:
-	BOKEH_LOG_LEVEL=fatal GT7_LIMITED=true GT7_HIDE_ANALYSIS=true GT7_HIDE_TUNING=true python3 gt7telemetry.py 192.168.178.120
-
-normal:
-	python3 gt7telemetry.py 192.168.178.120
-
-doc:
-	python3 generate_doc.py
-
-deps:
-	python3 -m pip install -r requirements.txt
-
-test_deps:
-	python3 -m pip install pytest
-
-test: test_deps deps
-	python3 -m pytest .
-
-car_lists:
-	python3 helper/download_cars_csv.py
+	BOKEH_LOG_LEVEL=fatal GT7_LIMITED=true GT7_HIDE_ANALYSIS=true GT7_HIDE_TUNING=true uv run gt7telemetry.py ${PS_IP}
 
 serve:
-	bokeh serve .
+	uv run -m bokeh serve .
 
-deploy:
-	git push
-	ssh ${MK_SERVER_USER}@${MK_SERVER_HOST} "cd work/gt7dashboard && git pull && git switch '$(shell git rev-parse --abbrev-ref HEAD)' && cd ~/git/conf/docker && sudo -S CONTAINER_NAME=gt7dashboard make build"
+normal:
+	uv run gt7telemetry.py ${PS_IP}
+
+doc:
+	uv run generate_doc.py
+
+setup: deps car_lists
+
+deps:
+	uv pip install -r requirements.txt
+
+car_lists:
+	uv run helper/download_cars_csv.py
+
+test: test_deps deps
+	uv run -m pytest .
+
+test_deps:
+	uv pip install pytest

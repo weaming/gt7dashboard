@@ -143,9 +143,8 @@ class TestHelper(unittest.TestCase):
         save(d)
         print('View file for reference at %s' % out_file)
 
-        with open(out_file, 'r') as fp:
-            data = fp.read()
-            self.assertIn('No Fuel', data)
+        self.assertIn('无燃油', fuel_map_html_table)
+        self.assertIn('无消耗', fuel_map_html_table)
 
     def test_get_fuel_map_html_table_with_no_consumption(self):
         d = Div()

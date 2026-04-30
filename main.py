@@ -55,20 +55,22 @@ def update_reference_lap_select(laps):
 @linear()
 def update_fuel_map(step):
     global g_stored_fuel_map
+    try:
+        if len(app.gt7comm.laps) == 0:
+            div_fuel_map.text = ''
+            return
 
-    if len(app.gt7comm.laps) == 0:
-        div_fuel_map.text = ''
-        return
+        last_lap = app.gt7comm.laps[0]
 
-    last_lap = app.gt7comm.laps[0]
+        if last_lap == g_stored_fuel_map:
+            return
+        else:
+            g_stored_fuel_map = last_lap
 
-    if last_lap == g_stored_fuel_map:
-        return
-    else:
-        g_stored_fuel_map = last_lap
-
-    # TODO Add real live data during a lap
-    div_fuel_map.text = gt7diagrams.get_fuel_map_html_table(last_lap)
+        # TODO Add real live data during a lap
+        div_fuel_map.text = gt7diagrams.get_fuel_map_html_table(last_lap)
+    except Exception:
+        logger.exception('Error updating fuel map')
 
 
 def update_race_lines(laps: List[Lap], reference_lap: Lap):
@@ -127,6 +129,20 @@ def update_lap_change():
     global g_telemetry_update_needed
     global g_reference_lap_selected
 
+    try:
+        _do_update_lap_change()
+    except Exception:
+        logger.exception('Error updating lap change, skipping this cycle')
+
+    g_laps_stored = app.gt7comm.get_laps().copy()
+    g_telemetry_update_needed = False
+
+
+def _do_update_lap_change():
+    global g_session_stored
+    global g_connection_status_stored
+    global g_reference_lap_selected
+
     update_start_time = time.time()
 
     laps = app.gt7comm.get_laps()
@@ -155,36 +171,51 @@ def update_lap_change():
                 laps, reference_lap_selected=g_reference_lap_selected
             )[1]
 
-            div_speed_peak_valley_diagram.text = get_speed_peak_and_valley_diagram(last_lap, reference_lap)
+            try:
+                div_speed_peak_valley_diagram.text = get_speed_peak_and_valley_diagram(last_lap, reference_lap)
+            except Exception:
+                logger.exception('Error updating speed peak and valley diagram')
 
         update_header_line(div_header_line, last_lap, reference_lap)
 
     logger.debug('Updating of %d laps' % len(laps))
 
     start_time = time.time()
-    update_time_table(laps)
+    try:
+        update_time_table(laps)
+    except Exception:
+        logger.exception('Error updating time table')
     logger.debug('Updating time table took %dms' % ((time.time() - start_time) * 1000))
 
     start_time = time.time()
-    update_reference_lap_select(laps)
+    try:
+        update_reference_lap_select(laps)
+    except Exception:
+        logger.exception('Error updating reference lap select')
     logger.debug('Updating reference lap select took %dms' % ((time.time() - start_time) * 1000))
 
     start_time = time.time()
-    update_speed_velocity_graph(laps)
+    try:
+        update_speed_velocity_graph(laps)
+    except Exception:
+        logger.exception('Error updating speed velocity graph')
     logger.debug('Updating speed velocity graph took %dms' % ((time.time() - start_time) * 1000))
 
     start_time = time.time()
-    update_race_lines(laps, reference_lap)
+    try:
+        update_race_lines(laps, reference_lap)
+    except Exception:
+        logger.exception('Error updating race lines')
     logger.debug('Updating race lines took %dms' % ((time.time() - start_time) * 1000))
 
     start_time = time.time()
-    corner_analysis.update(laps)
+    try:
+        corner_analysis.update(laps)
+    except Exception:
+        logger.exception('Error updating corner analysis')
     logger.debug('Updating corner analysis took %dms' % ((time.time() - start_time) * 1000))
 
     logger.debug('End of updating laps, whole Update took %dms' % ((time.time() - update_start_time) * 1000))
-
-    g_laps_stored = laps.copy()
-    g_telemetry_update_needed = False
 
 
 def update_speed_velocity_graph(laps: List[Lap]):
@@ -219,10 +250,10 @@ def update_speed_velocity_graph(laps: List[Lap]):
     # Adding Brake Points is slow when rendering, this is on Bokehs side about 3s
     brake_points_enabled = os.environ.get('GT7_ADD_BRAKEPOINTS') == 'true'
 
-    if brake_points_enabled and len(last_lap.data_braking) > 0:
+    if brake_points_enabled and last_lap and len(last_lap.data_braking) > 0:
         update_break_points(last_lap, s_race_line, 'blue')
 
-    if brake_points_enabled and len(reference_lap.data_braking) > 0:
+    if brake_points_enabled and reference_lap and len(reference_lap.data_braking) > 0:
         update_break_points(reference_lap, s_race_line, 'magenta')
 
 
@@ -372,10 +403,13 @@ if not hasattr(app, 'gt7comm'):
 
     # Auto-save all laps on each completed lap
     def on_lap_completed(_completed_lap):
-        laps = app.gt7comm.laps
-        if len(laps) > 0:
-            save_laps_to_path(laps, os.path.join('data', 'auto_save.json'))
-            logger.debug('Auto-saved %d laps' % len(laps))
+        try:
+            laps = app.gt7comm.laps
+            if len(laps) > 0:
+                save_laps_to_path(laps, os.path.join('data', 'auto_save.json'))
+                logger.debug('Auto-saved %d laps' % len(laps))
+        except Exception:
+            logger.exception('Error in lap auto-save')
 
     app.gt7comm.set_lap_callback(on_lap_completed)
 else:

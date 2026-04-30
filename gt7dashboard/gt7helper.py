@@ -415,7 +415,10 @@ def get_median_lap(laps: List[Lap]) -> Lap:
         if isinstance(getattr(laps[0], val), list):
             median_attribute = [none_ignoring_median(k) for k in itertools.zip_longest(*attributes, fillvalue=None)]
         else:
-            median_attribute = statistics.median(attributes)
+            numeric_attrs = [x for x in attributes if x is not None]
+            if len(numeric_attrs) == 0:
+                continue
+            median_attribute = statistics.median(numeric_attrs)
         setattr(median_lap, val, median_attribute)
 
     median_lap.title = 'Median (%d Laps): %s' % (

@@ -2,7 +2,7 @@
 
 gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 遥测接口，首次描述见[此处](https://www.gtplanet.net/forum/threads/gt7-is-compatible-with-motion-rig.410728 )。此项目最初是 Bornhall 的 [gt7telemetry](https://github.com/Bornhall/gt7telemetry) 的一个分支。
 
-详见[手册](#manual)获取详细说明。
+详见[手册](#手册)获取详细说明。
 
 ## 功能特点
 
@@ -65,16 +65,14 @@ gt7dashboard 是 Gran Turismo 7 的实时仪表盘。基于近期发现的 GT7 �
 
 ## 高级用户运行方式
 
-1. （一次性）`pip3 install -r requirements.txt` 安装 Python 依赖
-   1. 在 Windows 上：需要 Microsoft Visual C++ 14.0 或更高版本。通过 "Microsoft C++ Build Tools" 获取：https://visualstudio.microsoft.com/visual-cpp-build-tools/
-
-2. （可选，一次性）使用 `python3 helper/download_cars_csv.py` 下载赛车名称列表。没有此文件，赛车名称将仅显示为 `CAR-ID-123`。
+1. （一次性）`uv sync` 安装 Python 依赖
+2. （可选，一次性）`uv run helper/download_cars_csv.py` 下载赛车名称列表。没有此文件，赛车名称将仅显示为 `CAR-ID-123`。
 3. 运行仪表盘
-    - （Mac/Linux）`bokeh serve .`（在 `gt7dashboard` 文件夹内）
-    - （Windows）`python -m bokeh serve .`（在 `gt7dashboard` 文件夹内）
+    - （Mac/Linux）`uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
+    - （Windows）`uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
 4. （可选）使用自定义 IP 运行仪表盘
-   - （Mac/Linux）`GT7_PLAYSTATION_IP=<主机 IP 地址> bokeh serve .`（在 `gt7dashboard` 文件夹内）
-   - （Windows）`set GT7_PLAYSTATION_IP=<主机 IP 地址>` 然后 `python -m bokeh serve .`（在 `gt7dashboard` 文件夹内）
+   - （Mac/Linux）`GT7_PLAYSTATION_IP=<主机 IP 地址> uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
+   - （Windows）`set GT7_PLAYSTATION_IP=<主机 IP 地址>` 然后 `uv run bokeh serve .`（在 `gt7dashboard` 文件夹内）
 
 ## 故障排除
 
