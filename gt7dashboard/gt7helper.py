@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import statistics
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from statistics import StatisticsError
 from typing import Tuple, List
@@ -325,10 +325,9 @@ def get_data_dir() -> str:
 
 def save_laps_to_json(laps: List[Lap]) -> str:
     storage_folder = get_data_dir()
-    local_timezone = datetime.now(timezone.utc).astimezone().tzinfo
-    dt = datetime.now(tz=local_timezone)
-    str_date_time = dt.strftime('%Y-%m-%d_%H_%M_%S')
-    storage_filename = '%s_%s.json' % (str_date_time, get_safe_filename(laps[0].car_name()))
+    first_lap = laps[-1]
+    str_date_time = first_lap.lap_start_timestamp.strftime('%Y-%m-%d_%H_%M_%S')
+    storage_filename = '%s_%s.json' % (str_date_time, get_safe_filename(first_lap.car_name()))
     Path(storage_folder).mkdir(parents=True, exist_ok=True)
     path = os.path.join(os.getcwd(), storage_folder, storage_filename)
     with open(path, 'w') as f:
