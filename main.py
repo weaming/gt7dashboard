@@ -179,9 +179,42 @@ def update_lap_change():
     g_telemetry_update_needed = False
 
 
+def _clear_all_visuals():
+    """Clear all chart data sources and divs when laps are cleared."""
+    global race_lines, race_lines_data, race_time_table, corner_analysis
+
+    empty_dict = Lap().get_data_dict()
+    empty_time_diff = {'distance': [], 'timedelta': []}
+    empty_race_line = {'raceline_x': [], 'raceline_z': []}
+
+    race_diagram.source_last_lap.data = empty_dict
+    race_diagram.source_reference_lap.data = empty_dict
+    race_diagram.source_median_lap.data = empty_dict
+    race_diagram.source_time_diff.data = empty_time_diff
+
+    last_lap_race_line.data_source.data = empty_race_line
+    reference_lap_race_line.data_source.data = empty_race_line
+
+    for line_data in race_lines_data:
+        for source in line_data:
+            source.data_source.data = empty_dict
+
+    clear_break_points(s_race_line)
+
+    race_time_table.show_laps([])
+    corner_analysis.update([])
+
+    div_header_line.text = ''
+    div_speed_peak_valley_diagram.text = ''
+    div_fuel_map.text = ''
+    div_deviance_laps_on_display.text = ''
+
+
 def _do_update_lap_change():
     global g_session_stored
     global g_reference_lap_selected
+    global g_laps_stored
+    global g_telemetry_update_needed
 
     update_start_time = time.time()
 
@@ -193,6 +226,12 @@ def _do_update_lap_change():
 
     # This saves on cpu time, 99.9% of the time this is true
     if laps == g_laps_stored and not g_telemetry_update_needed:
+        return
+
+    if len(laps) == 0:
+        _clear_all_visuals()
+        g_laps_stored = laps
+        g_telemetry_update_needed = False
         return
 
     logger.debug('Rerendering laps')

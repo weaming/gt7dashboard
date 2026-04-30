@@ -11,7 +11,7 @@ from gt7dashboard.gt7lap import Lap
 
 
 def hide_toolbar(target_figure: figure):
-    target_figure.toolbar.visible = False
+    target_figure.toolbar.autohide = True
 
 
 def get_throttle_braking_race_line_diagram():
