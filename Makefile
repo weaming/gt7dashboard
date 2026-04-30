@@ -7,17 +7,8 @@ run-in-docker: build-docker
 build-docker:
 	HTTPS_PROXY=http://localhost:7890 docker build -t gt7-dashboard .
 
-limited:
-	GT7_LIMITED=true uv run gt7telemetry.py ${PS_IP}
-
-race:
-	BOKEH_LOG_LEVEL=fatal GT7_LIMITED=true GT7_HIDE_ANALYSIS=true GT7_HIDE_TUNING=true uv run gt7telemetry.py ${PS_IP}
-
 serve:
 	uv run -m bokeh serve .
-
-normal:
-	uv run gt7telemetry.py ${PS_IP}
 
 setup: deps car_lists
 
