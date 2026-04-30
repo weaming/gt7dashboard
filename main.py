@@ -219,7 +219,8 @@ def _do_update_lap_change():
 
     update_start_time = time.time()
 
-    laps = app.gt7comm.get_laps()
+    # Snapshot to prevent race condition with telemetry thread inserting into laps during iteration
+    laps = list(app.gt7comm.get_laps())
 
     if app.gt7comm.session != g_session_stored:
         update_tuning_info()
@@ -366,8 +367,6 @@ def clear_break_points(race_line: figure):
 
 def update_time_table(laps: List[Lap]):
     global race_time_table
-    global lap_times_source
-    # FIXME time table is not updating
     logger.info('Adding %d laps to table' % len(laps))
     race_time_table.show_laps(laps)
 
