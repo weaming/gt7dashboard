@@ -355,17 +355,31 @@ class TestLaps(unittest.TestCase):
         print(tuple_list)
 
     def test_save_laps_to_json(self):
+        import tempfile
+
         l1 = Lap()
         l1.data_boost = [0.6, 0.7, 0.9]
+        l1.car_id = 1
+        l1.lap_finish_time = 1000
+
         l2 = Lap()
         l2.data_boost = [2.6, 2.7, 3.9]
+        l2.car_id = 2
+        l2.lap_finish_time = 2000
 
         laps = [l1, l2]
-        json_path = gt7helper.save_laps_to_json(laps)
-        print(json_path)
 
-        laps_read = gt7helper.load_laps_from_json(json_path)
-
-        self.assertEqual(len(laps), len(laps_read))
-        for obj1, obj2 in zip(laps, laps_read):
-            self.assertEqual(obj1.__dict__, obj2.__dict__)
+        orig_data_dir = os.environ.get('GT7_DATA_DIR')
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.environ['GT7_DATA_DIR'] = tmpdir
+            try:
+                json_path = gt7helper.save_laps_to_json(laps)
+                laps_read = gt7helper.load_laps_from_json(json_path)
+                self.assertEqual(len(laps), len(laps_read))
+                for obj1, obj2 in zip(laps, laps_read):
+                    self.assertEqual(obj1.__dict__, obj2.__dict__)
+            finally:
+                if orig_data_dir is not None:
+                    os.environ['GT7_DATA_DIR'] = orig_data_dir
+                else:
+                    del os.environ['GT7_DATA_DIR']

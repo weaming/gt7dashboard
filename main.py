@@ -4,8 +4,6 @@ import os
 import time
 from typing import List
 
-os.environ.setdefault('BOKEH_SIMPLE_WS', 'true')
-
 import bokeh.application
 from bokeh.driving import linear
 from bokeh.layouts import layout
@@ -201,6 +199,7 @@ def _clear_all_visuals():
             source.data_source.data = empty_dict
 
     clear_break_points(s_race_line)
+    race_diagram.source_speed_variance.data = {'distance': [], 'speed_variance': []}
 
     race_time_table.show_laps([])
     corner_analysis.update([])
@@ -208,7 +207,9 @@ def _clear_all_visuals():
     div_header_line.text = ''
     div_speed_peak_valley_diagram.text = ''
     div_fuel_map.text = ''
+    div_tuning_info.text = ''
     div_deviance_laps_on_display.text = ''
+    reference_lap_select.options = [('-1', '最佳圈')]
 
 
 def _do_update_lap_change():
@@ -750,11 +751,10 @@ l2, race_lines, race_lines_data = get_race_lines_layout(number_of_race_lines=1)
 
 l3 = layout(
     [
-        [reset_button, save_button],
         [
             div_speed_peak_valley_diagram,
             div_fuel_map,
-        ],  # TODO Race table does not render twice, one rendering will be empty
+        ],
     ],
     sizing_mode='stretch_width',
 )

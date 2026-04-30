@@ -8,7 +8,7 @@ DATA_DIR="${DL:-$HOME/Downloads}/gt7data"
 
 mkdir -p "$DATA_DIR"
 
-export GT7_DATA_DIR=~/Downloads/gt7data
+export GT7_DATA_DIR="$DATA_DIR"
 export BOKEH_ALLOW_WS_ORIGIN='*'
 export GT7_PLAYSTATION_IP="$PS5_IP"
 export GT7_ADD_BRAKEPOINTS=true
